@@ -1,0 +1,23 @@
+{
+  "name": "blockchain-lottery-game",
+  "version": "1.0.0",
+  "description": "",
+  "main": "hardhat.config.ts",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@metamask/providers": "^22.1.1",
+    "@nomicfoundation/hardhat-toolbox": "^6.1.0",
+    "@types/node": "^24.10.0",
+    "hardhat": "^2.27.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}

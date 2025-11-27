@@ -1,0 +1,13 @@
+{
+  "name": "frontend-ts-demo",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "tsc",
+    "start": "npx http-server ."
+  },
+  "devDependencies": {
+    "typescript": "^5.1.6",
+    "ethers": "^6.10.0",
+    "http-server": "^14.1.1"
+  }
+}
