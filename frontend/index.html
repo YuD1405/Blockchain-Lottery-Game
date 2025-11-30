@@ -1,18 +1,37 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <title>DApp Demo TS</title>
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lottery DApp - Trang chủ</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <h1>DApp Hello World Demo</h1>
-  <button id="connect">Connect Wallet</button>
-  <button id="getMessage">Get Message</button>
-  <button id="setMessage">Set New Message</button>
-  <p id="status"></p>
+    <!-- Navbar -->
+    <header>
+        <div class="container nav-container">
+            <div class="logo">NFT Lottery</div>
+            <nav>
+                <ul>
+                    <li><a href="index.html" style="color: var(--primary-color)">Trang chủ</a></li>
+                    <li><a href="play.html">Chơi Xổ Số</a></li>
+                    <li><a href="market.html">Chợ NFT</a></li>
+                    <li><a href="profile.html">Hồ sơ</a></li>
+                </ul>
+            </nav>
+            <button class="btn-connect" id="connectWalletBtn">Kết nối Ví</button>
+        </div>
+    </header>
 
-  <script src="app.js"></script> <!-- TS compile ra JS -->
+    <!-- Hero Section -->
+    <div class="container hero flex-center">
+        <h1>Xổ Số Phi Tập Trung <br> Giải thưởng NFT Độc Nhất</h1>
+        <p>Tham gia xổ số minh bạch trên Blockchain. Đặt cược bằng ETH, chiến thắng NFT giá trị và giao dịch ngay trên Marketplace.</p>
+        
+        <div class="actions">
+            <a href="play.html" class="btn btn-primary">Chơi Ngay</a>
+            <a href="market.html" class="btn btn-secondary">Xem Marketplace</a>
+        </div>
+    </div>
 </body>
 </html>

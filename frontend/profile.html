@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lottery DApp - Hồ sơ</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <div class="container nav-container">
+            <div class="logo">NFT Lottery</div>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Trang chủ</a></li>
+                    <li><a href="play.html">Chơi Xổ Số</a></li>
+                    <li><a href="market.html">Chợ NFT</a></li>
+                    <li><a href="profile.html" style="color: var(--primary-color)">Hồ sơ</a></li>
+                </ul>
+            </nav>
+            <button class="btn-connect">0x123...abc</button>
+        </div>
+    </header>
+
+    <main class="container mt-20">
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <div class="avatar">👤</div>
+            <div>
+                <h2>Hồ sơ của tôi</h2>
+                <p style="color: var(--text-muted); font-family: monospace; font-size: 1.1rem; margin-top: 5px;">
+                    Address: 0x1234567890abcdef1234567890abcdef12345678
+                </p>
+                <p style="margin-top: 10px;">
+                    Số dư: <span style="color: var(--success-color); font-weight: bold;">12.5 ETH</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- My NFT Collection -->
+        <h3 class="mb-20">Bộ sưu tập NFT của tôi</h3>
+        <div class="grid-3">
+            <!-- Owned NFT 1 -->
+            <div class="card nft-card">
+                <img src="https://via.placeholder.com/300x200/334155/ffffff?text=Winner+Ticket+%2301" alt="NFT">
+                <div class="nft-info">
+                    <h4>Winner Ticket #01</h4>
+                    <span class="price" style="color: var(--text-muted)">Chưa niêm yết</span>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" placeholder="Giá (ETH)" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc; width: 60%;">
+                    <button class="btn btn-secondary" style="flex: 1;">Bán</button>
+                </div>
+            </div>
+
+            <!-- Owned NFT 2 (Listed) -->
+            <div class="card nft-card">
+                <img src="https://via.placeholder.com/300x200/334155/ffffff?text=Winner+Ticket+%2305" alt="NFT">
+                <div class="nft-info">
+                    <h4>Winner Ticket #05</h4>
+                    <span class="price">Đang bán: 2.0 ETH</span>
+                </div>
+                <button class="btn btn-secondary" style="width: 100%; border-color: var(--danger-color); color: var(--danger-color);">Hủy bán</button>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
