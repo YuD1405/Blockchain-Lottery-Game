@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.28;
 
 // Import các hợp đồng con
 import "./RandomGenerator.sol";
-// import "./LotteryNFT.sol";
+import "./NFT.sol";
 
-contract LotteryMechanism {
+contract Lottery {
     // Init addresses
     address private manager;
     mapping(uint => mapping(uint => address)) private playersByRound;
@@ -23,7 +23,7 @@ contract LotteryMechanism {
 
     // Call sub-Contracts
     RandomGenerator randomGenerator;
-    // LotteryNFT public lotteryNFT;
+    NFT public lotteryNFT;
 
     // Check manager
     modifier onlyManager() {
@@ -40,7 +40,7 @@ contract LotteryMechanism {
     constructor(address _randomGenerator, address _lotteryNFT) {
         manager = msg.sender;
         randomGenerator = RandomGenerator(_randomGenerator);
-        // lotteryNFT = LotteryNFT(_lotteryNFT);
+        lotteryNFT = NFT(_lotteryNFT);
         gameActive = true;
     }
 
@@ -79,7 +79,7 @@ contract LotteryMechanism {
         // winnerToTokenId[winner] = winnerNFTId;
         
         // Tranfer balance to the winner
-        uint prize = address(this).balance;
+        // uint prize = address(this).balance;
         // internalSafeTransfer(payable(winner), prize);
 
         // Deactive the game

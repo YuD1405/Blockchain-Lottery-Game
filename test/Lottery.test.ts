@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
 
-describe("LotteryMechanism", () => {
+describe("Lottery Mechanism", () => {
   let lottery: any;
   let randomGenerator: any;
   let owner: any;
@@ -18,7 +18,7 @@ describe("LotteryMechanism", () => {
     await randomGenerator.waitForDeployment();
 
     // Deploy LotteryMechanism
-    const Lottery = await ethers.getContractFactory("LotteryMechanism");
+    const Lottery = await ethers.getContractFactory("Lottery");
     lottery = await Lottery.deploy(await randomGenerator.getAddress(), ethers.ZeroAddress);
 
     await lottery.waitForDeployment();
