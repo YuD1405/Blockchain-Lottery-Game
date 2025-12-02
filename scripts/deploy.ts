@@ -1,12 +1,11 @@
 import { ethers } from "hardhat";
 
 async function main() {
-  const HelloWorld = await ethers.getContractFactory("HelloWorld");
-  const hello = await HelloWorld.deploy("Hello Blockchain!");
-  await hello.waitForDeployment();
+  const Marketplace = await ethers.getContractFactory("NFTMarketplace");
+  const marketplace_deploy = await Marketplace.deploy();
+  await marketplace_deploy.waitForDeployment();
 
-  console.log(`Contract deployed at: ${await hello.getAddress()}`);
-  console.log(`Current message: ${await hello.getMessage()}`);
+  console.log(`Contract deployed at: ${await marketplace_deploy.getAddress()}`);
 }
 
 main()

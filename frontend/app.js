@@ -3,47 +3,46 @@ const { BrowserProvider, Contract } = window.ethers;
 const CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 const ABI = [
     {
-        "inputs": [
-            {
-                "internalType": "string",
-                "name": "_message",
-                "type": "string"
-            }
-        ],
-        "stateMutability": "nonpayable",
-        "type": "constructor"
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_message",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
     },
     {
-        "inputs": [],
-        "name": "getMessage",
-        "outputs": [
-            {
-                "internalType": "string",
-                "name": "",
-                "type": "string"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
+      "inputs": [],
+      "name": "getMessage",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
     },
     {
-        "inputs": [
-            {
-                "internalType": "string",
-                "name": "_newMessage",
-                "type": "string"
-            }
-        ],
-        "name": "setMessage",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_newMessage",
+          "type": "string"
+        }
+      ],
+      "name": "setMessage",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
     }
 ];
 let provider;
 let signer;
 let contract;
-console.log(contract);
 
 async function connectWallet() {
     if (typeof window.ethereum === "undefined") {
@@ -55,7 +54,9 @@ async function connectWallet() {
     signer = await provider.getSigner();
     contract = new Contract(CONTRACT_ADDRESS, ABI, signer);
     const address = await signer.getAddress();
-    document.getElementById("status").innerText = `✅ Connected: ${address}`;
+    const balance = await provider.getBalance(address);
+    console.log(balance);
+    document.getElementById("status").innerText = `✅ Connected: ${address} - Balance: ${balance}`;
 }
 async function getMessage() {
     const msg = await contract.getMessage();

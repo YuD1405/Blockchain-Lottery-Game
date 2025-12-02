@@ -102,7 +102,7 @@ describe("NFTMarketplace", function () {
       ).to.be.revertedWith("Invalid recipient address");
     });
 
-    it.skip("Should revert if NFT is listed", async function () {
+    xit("Should revert if NFT is listed", async function () {
       await marketplace
         .connect(seller)
         .listNFT(tokenId, ethers.parseEther("1"));
@@ -158,7 +158,7 @@ describe("NFTMarketplace", function () {
       ).to.be.revertedWith("Price must be greater than 0");
     });
 
-    it.skip("Should revert if NFT already listed", async function () {
+    xit("Should revert if NFT already listed", async function () {
       const price = ethers.parseEther("1");
       const listingId = await listNFT(seller, tokenId, price);
       
@@ -311,7 +311,7 @@ describe("NFTMarketplace", function () {
 
   // ==================== INTEGRATION TESTS ====================
   describe("Integration Tests", function () {
-    it.skip("Should handle complete lifecycle: mint -> list -> buy -> list again", async function () {
+    xit("Should handle complete lifecycle: mint -> list -> buy -> list again", async function () {
       // Mint
       const tokenId = await mintNFT(seller, seller.address, "ipfs://QmTest1");
 
@@ -380,7 +380,7 @@ describe("NFTMarketplace", function () {
       expect(await marketplace.getTokenListingId(999)).to.equal(0); // Not listed
     });
 
-    it.skip("Should check if NFT is listed", async function () {
+    xit("Should check if NFT is listed", async function () {
       expect(await marketplace.isNFTListed(tokenId)).to.be.true;
 
       const tokenId2 = await mintNFT(seller, seller.address, "ipfs://QmTest2");
