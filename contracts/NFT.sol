@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract LotteryNFT is ERC721, ERC721URIStorage, Ownable {
+contract NFT is ERC721, ERC721URIStorage, Ownable {
     uint256 private _nextTokenId;
 
     // Lưu thông tin về người thắng và round

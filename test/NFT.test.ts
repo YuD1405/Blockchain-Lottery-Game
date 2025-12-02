@@ -1,10 +1,10 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { LotteryNFT } from "../typechain-types";
+import { NFT } from "../typechain-types";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 
 describe("LotteryNFT", function () {
-  let lotteryNFT: LotteryNFT;
+  let lotteryNFT: NFT;
   let owner: HardhatEthersSigner;
   let winner1: HardhatEthersSigner;
   let winner2: HardhatEthersSigner;
@@ -14,7 +14,7 @@ describe("LotteryNFT", function () {
     [owner, winner1, winner2] = await ethers.getSigners();
 
     // Deploy contract
-    const LotteryNFT = await ethers.getContractFactory("LotteryNFT");
+    const LotteryNFT = await ethers.getContractFactory("NFT");
     lotteryNFT = await LotteryNFT.deploy();
     await lotteryNFT.waitForDeployment();
   });
