@@ -1,21 +1,23 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lottery DApp - Chơi Game</title>
+    <title>Lottery DApp - Play Game</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
     <header>
         <div class="container nav-container">
             <div class="logo">NFT Lottery</div>
             <nav>
                 <ul>
-                    <li><a href="index.html">Trang chủ</a></li>
-                    <li><a href="play.html" style="color: var(--primary-color)">Chơi Xổ Số</a></li>
-                    <li><a href="market.html">Chợ NFT</a></li>
-                    <li><a href="profile.html">Hồ sơ</a></li>
+                    <li><a href="index.html">Main Page</a></li>
+                    <li><a href="play.html" style="color: var(--primary-color)">Play Lottery</a></li>
+                    <li><a href="market.html">NFT Marketplace</a></li>
+                    <li><a href="profile.html">Profile</a></li>
                 </ul>
             </nav>
             <button class="btn-connect">0x123...abc</button>
@@ -23,73 +25,81 @@
     </header>
 
     <main class="container mt-20">
-        <h2 class="mb-20">Vòng Chơi Hiện Tại #42</h2>
+        <h2 class="mb-20">Current Round #42</h2>
 
         <!-- Stats Section -->
         <div class="lottery-stats">
             <div class="card stat-box">
-                <h3>Tổng Pool</h3>
+                <h3>Total Pool</h3>
                 <div class="stat-value">5.2 ETH</div>
             </div>
             <div class="card stat-box">
-                <h3>Người chơi</h3>
+                <h3>Players</h3>
                 <div class="stat-value">12</div>
             </div>
             <div class="card stat-box">
-                <h3>Phí tham gia</h3>
+                <h3>Entry Fee</h3>
                 <div class="stat-value">0.1 ETH</div>
             </div>
         </div>
 
-        <!-- Action Section -->
-        <div class="card flex-center" style="flex-direction: column; padding: 40px; margin-bottom: 30px;">
-            <p class="mb-20" style="font-size: 1.1rem;">Bạn chưa tham gia vòng này.</p>
-            <button class="btn btn-primary" style="font-size: 1.2rem; padding: 15px 40px;">Tham Gia (0.1 ETH)</button>
-        </div>
+        <!-- Combined Action & Player List Section -->
+        <!-- Đã gộp danh sách người chơi vào đây và đưa nút tham gia xuống dưới -->
+        <div class="card flex-center" style="flex-direction: column; padding: 40px; margin-bottom: 20px;">
 
-        <div class="grid-3">
-            <!-- Player List -->
-            <div class="card player-list">
-                <h3 class="mb-20">Danh sách người chơi</h3>
-                <ul>
-                    <li>
+            <!-- Player List Area -->
+            <div class="player-list" style="width: 100%; max-width: 600px; margin-bottom: 30px;">
+                <h3 class="mb-20" style="text-align: center;">Player List</h3>
+                <ul style="list-style: none; padding: 0;">
+                    <li
+                        style="display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid var(--border-color);">
                         <span>0x71C...9A2</span>
-                        <span style="color: var(--text-muted)">1 vé</span>
+                        <span style="color: var(--text-muted)">1 ticket</span>
                     </li>
-                    <li>
+                    <li
+                        style="display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid var(--border-color);">
                         <span>0x3B4...1C9</span>
-                        <span style="color: var(--text-muted)">1 vé</span>
+                        <span style="color: var(--text-muted)">1 ticket</span>
                     </li>
-                    <li>
+                    <li
+                        style="display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid var(--border-color);">
                         <span>0xA91...8B2</span>
-                        <span style="color: var(--text-muted)">1 vé</span>
+                        <span style="color: var(--text-muted)">1 ticket</span>
                     </li>
-                    <!-- Thêm item mẫu -->
                 </ul>
             </div>
 
-            <!-- History -->
-            <div class="card">
-                <h3 class="mb-20">Lịch sử người thắng</h3>
-                <ul>
-                    <li style="padding: 10px; border-bottom: 1px solid var(--border-color)">
-                        Round #41: <span style="color: var(--success-color)">0x88...11</span> - NFT #04
-                    </li>
-                    <li style="padding: 10px; border-bottom: 1px solid var(--border-color)">
-                        Round #40: <span style="color: var(--success-color)">0x22...AA</span> - NFT #03
-                    </li>
-                </ul>
+            <!-- Join Action Area -->
+            <div style="text-align: center;">
+                <p class="mb-20" style="font-size: 1.1rem;">You have not joined this round.</p>
+                <button class="btn btn-primary" style="font-size: 1.2rem; padding: 15px 40px;">Join (0.1 ETH)</button>
             </div>
         </div>
 
-        <!-- Admin Section (Only visible for admin in logic, shown here for UI demo) -->
+        <!-- History Section -->
+        <!-- Đã bỏ class grid-3 để div này tự động full width -->
+        <div class="card" style="margin-bottom: 20px;">
+            <h3 class="mb-20">Winner History</h3>
+            <ul>
+                <li style="padding: 10px; border-bottom: 1px solid var(--border-color)">
+                    Round #41: <span style="color: var(--success-color)">0x88...11</span> - NFT #04
+                </li>
+                <li style="padding: 10px; border-bottom: 1px solid var(--border-color)">
+                    Round #40: <span style="color: var(--success-color)">0x22...AA</span> - NFT #03
+                </li>
+            </ul>
+        </div>
+
+        <!-- Admin Section -->
         <div class="card admin-panel mt-20">
-            <h3 style="color: var(--danger-color); margin-bottom: 15px;">Khu vực Admin</h3>
+            <h3 style="color: var(--danger-color); margin-bottom: 15px;">Admin Area</h3>
             <div style="display: flex; gap: 10px;">
                 <button class="btn btn-admin">Pick Random Winner</button>
-                <button class="btn btn-secondary" style="border-color: var(--danger-color); color: var(--danger-color);">Reset Round</button>
+                <button class="btn btn-secondary"
+                    style="border-color: var(--danger-color); color: var(--danger-color);">Reset Round</button>
             </div>
         </div>
     </main>
 </body>
+
 </html>

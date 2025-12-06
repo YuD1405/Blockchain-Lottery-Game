@@ -1,13 +1,18 @@
 {
-  "name": "frontend-ts-demo",
+  "name": "frontend-blockchain-lottery",
   "version": "1.0.0",
+  "type": "module",
+  "description": "Frontend for Blockchain Lottery & NFT Marketplace DApp",
   "scripts": {
     "build": "tsc",
-    "start": "npx http-server ."
+    "start": "npx http-server . -p 8080 -c-1",
+    "serve": "npx http-server . -p 8080 -c-1 -o"
+  },
+  "dependencies": {
+    "ethers": "^6.16.0"
   },
   "devDependencies": {
-    "typescript": "^5.1.6",
-    "ethers": "^6.10.0",
-    "http-server": "^14.1.1"
+    "http-server": "^14.1.1",
+    "typescript": "^5.1.6"
   }
 }

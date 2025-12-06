@@ -1,11 +1,16 @@
 /* css/style.css */
 
 :root {
-  --primary-color: #7d7ff3; /* Indigo */
-  --secondary-color: #ec4899; /* Pink */
-  --bg-color: #0f172a; /* Dark Blue */
-  --card-bg: #1e293b; /* Lighter Dark Blue */
-  --text-color: #f8fafc; /* White/Light Grey */
+  --primary-color: #7d7ff3;
+  /* Indigo */
+  --secondary-color: #ec4899;
+  /* Pink */
+  --bg-color: #0f172a;
+  /* Dark Blue */
+  --card-bg: #1e293b;
+  /* Lighter Dark Blue */
+  --text-color: #f8fafc;
+  /* White/Light Grey */
   --text-muted: #ffffff;
   --border-color: #334155;
   --success-color: #22c55e;
@@ -23,12 +28,12 @@
 
 
 body {
-  background-size:cover;
+  background-size: cover;
   background-repeat: no-repeat;
-  background-position: center;
-  background-image:  url(../img/wp11027800.jpg) ;
+  background-attachment: fixed;
+  background-image: url(../img/wp11027800.jpg);
   background-blend-mode: multiply;
-  background-color:  rgba(15, 23, 42, 0.7);
+  background-color: rgba(15, 23, 42, 0.7);
   color: var(--text-color);
   line-height: 1.6;
 }
@@ -57,8 +62,13 @@ a {
   gap: 20px;
 }
 
-.mt-20 { margin-top: 10px; }
-.mb-20 { margin-bottom: 20px; }
+.mt-20 {
+  margin-top: 10px;
+}
+
+.mb-20 {
+  margin-bottom: 20px;
+}
 
 /* --- Navbar --- */
 header {
@@ -128,14 +138,20 @@ nav a:hover {
   background-color: var(--primary-color);
   color: white;
 }
-.btn-primary:hover { background-color: #4f46e5; }
+
+.btn-primary:hover {
+  background-color: #4f46e5;
+}
 
 .btn-secondary {
   background-color: transparent;
   border: 1px solid var(--primary-color);
   color: var(--primary-color);
 }
-.btn-secondary:hover { background-color: rgba(99, 102, 241, 0.1); }
+
+.btn-secondary:hover {
+  background-color: rgba(99, 102, 241, 0.1);
+}
 
 .btn-admin {
   background-color: var(--danger-color);
