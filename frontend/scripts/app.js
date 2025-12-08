@@ -262,7 +262,7 @@ function updateStatus(message, type = "info") {
 
 // ==================== Event Listeners ====================
 document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("connect").addEventListener("click", connectWallet);
+  document.getElementById("connectWalletBtn").addEventListener("click", connectWallet);
 
   // Lottery events
   document.getElementById("joinLottery").addEventListener("click", joinLottery);
