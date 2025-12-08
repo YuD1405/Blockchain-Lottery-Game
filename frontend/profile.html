@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lottery DApp - Profile</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/toast.css">
 </head>
 
 <body>
@@ -20,7 +21,7 @@
                     <li><a href="profile.html" style="color: var(--primary-color)">Profile</a></li>
                 </ul>
             </nav>
-            <button class="btn-connect">0x123...abc</button>
+            <button class="btn-connect" id="connectWalletBtn">Connect</button>
         </div>
     </header>
 
@@ -31,10 +32,10 @@
             <div>
                 <h2>My Profile</h2>
                 <p style="color: var(--text-muted); font-family: monospace; font-size: 1.1rem; margin-top: 5px;">
-                    Address: 0x1234567890abcdef1234567890abcdef12345678
+                    Address: <span id="user-address">Loading...</span>
                 </p>
                 <p style="margin-top: 10px;">
-                    Balance: <span style="color: var(--success-color); font-weight: bold;">12.5 ETH</span>
+                    Balance: <span id="user-balance" style="color: var(--success-color); font-weight: bold;">0 ETH </span>
                 </p>
             </div>
         </div>
@@ -70,6 +71,12 @@
             </div>
         </div>
     </main>
+    <!-- Toast Display -->
+    <div id="toastContainer"></div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.10.0/ethers.umd.min.js"></script>
+    <script type="module" src="scripts/app.js"></script>
+
 </body>
 
 </html>

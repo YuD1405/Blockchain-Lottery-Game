@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lottery DApp - Play Game</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/toast.css">
 </head>
 
 <body>
@@ -20,7 +21,7 @@
                     <li><a href="profile.html">Profile</a></li>
                 </ul>
             </nav>
-            <button class="btn-connect">0x123...abc</button>
+            <button class="btn-connect" id="connectWalletBtn">Connect Wallet</button>
         </div>
     </header>
 
@@ -101,6 +102,10 @@
             </div>
         </div>
     </main>
+    <!-- Toast Display -->
+    <div id="toastContainer"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.10.0/ethers.umd.min.js"></script>
+    <script type="module" src="scripts/app.js"></script>
 </body>
 
 </html>
