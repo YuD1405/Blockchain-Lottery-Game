@@ -1,6 +1,7 @@
 const { BrowserProvider, Contract, parseEther } = ethers;
 import { loadProfilePage } from "./profile.js"
 // import { initContracts } from "./contracts.js";
+
 import { showToast } from "./toast.js";
 
 export let provider;
@@ -24,7 +25,6 @@ export async function connectWallet() {
     updateWalletUI(userAddress);
     const message = "Connected to " + userAddress.slice(0, 6) + "..." + userAddress.slice(-4);
     showToast(message, "success");
-    // await initContracts(signer);
   } catch (e) {
     showToast(e.message, "error");
   }
@@ -66,6 +66,9 @@ export function initWalletEvents() {
         }
 
         currentAddress = accounts[0];
+         if (!provider) {
+          provider = new ethers.BrowserProvider(window.ethereum);
+        }
         signer = await provider.getSigner();
         updateWalletUI(currentAddress);
         const message = "Account changed: " + currentAddress.slice(0, 6) + "..." + currentAddress.slice(-4)

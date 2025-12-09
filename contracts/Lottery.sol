@@ -61,7 +61,7 @@ contract Lottery {
     }
 
     // Manager pick the winner among players
-    function pickWinner() external {
+    function pickWinner() external onlyManager {
         // Check conditions
         require(gameActive, "Game already ended");
         require(block.timestamp > deadlines || ticketCount == maxTicket, "Do not meet conditions to end yet");

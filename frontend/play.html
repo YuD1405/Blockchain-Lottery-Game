@@ -26,32 +26,31 @@
     </header>
 
     <main class="container mt-20">
-        <h2 class="mb-20">Current Round #42</h2>
+        <h2 class="mb-20" id="currentRound">Current Round 42</h2>
 
         <!-- Stats Section -->
         <div class="lottery-stats">
             <div class="card stat-box">
                 <h3>Total Pool</h3>
-                <div class="stat-value">5.2 ETH</div>
+                <div class="stat-value" id="totalPool"></div>
             </div>
             <div class="card stat-box">
                 <h3>Players</h3>
-                <div class="stat-value">12</div>
+                <div class="stat-value" id="playerCount"></div>
             </div>
             <div class="card stat-box">
                 <h3>Entry Fee</h3>
-                <div class="stat-value">0.1 ETH</div>
+                <div class="stat-value" id="entryFee">ETH</div>
             </div>
         </div>
 
-        <!-- Combined Action & Player List Section -->
-        <!-- Đã gộp danh sách người chơi vào đây và đưa nút tham gia xuống dưới -->
+         <!-- Player Section -->
         <div class="card flex-center" style="flex-direction: column; padding: 40px; margin-bottom: 20px;">
 
             <!-- Player List Area -->
             <div class="player-list" style="width: 100%; max-width: 600px; margin-bottom: 30px;">
                 <h3 class="mb-20" style="text-align: center;">Player List</h3>
-                <ul style="list-style: none; padding: 0;">
+                <ul id="playerList" style="list-style: none; padding: 0;">
                     <li
                         style="display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid var(--border-color);">
                         <span>0x71C...9A2</span>
@@ -60,7 +59,6 @@
                     <li
                         style="display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid var(--border-color);">
                         <span>0x3B4...1C9</span>
-                        <span style="color: var(--text-muted)">1 ticket</span>
                         <span style="color: var(--text-muted)">1 ticket</span>
                     </li>
                     <li
@@ -73,8 +71,8 @@
 
             <!-- Join Action Area -->
             <div style="text-align: center;">
-                <p class="mb-20" style="font-size: 1.1rem;">You have not joined this round.</p>
-                <button class="btn btn-primary" style="font-size: 1.2rem; padding: 15px 40px;">Join (0.1 ETH)</button>
+                <p id="userJoinStatus" class="mb-20" style="font-size: 1.1rem;">You have not joined this round.</p>
+                <button id="joinBtn" class="btn btn-primary" style="font-size: 1.2rem; padding: 15px 40px;">Join</button>
             </div>
         </div>
 
@@ -82,7 +80,7 @@
         <!-- Đã bỏ class grid-3 để div này tự động full width -->
         <div class="card" style="margin-bottom: 20px;">
             <h3 class="mb-20">Winner History</h3>
-            <ul>
+            <ul id="winnerHistory">
                 <li style="padding: 10px; border-bottom: 1px solid var(--border-color)">
                     Round #41: <span style="color: var(--success-color)">0x88...11</span> - NFT #04
                 </li>
@@ -96,8 +94,8 @@
         <div class="card admin-panel mt-20">
             <h3 style="color: var(--danger-color); margin-bottom: 15px;">Admin Area</h3>
             <div style="display: flex; gap: 10px;">
-                <button class="btn btn-admin">Pick Random Winner</button>
-                <button class="btn btn-secondary"
+                                <button id="pickWinnerBtn" class="btn btn-admin">Pick Random Winner</button>
+                <button id="resetBtn" class="btn btn-secondary"
                     style="border-color: var(--danger-color); color: var(--danger-color);">Reset Round</button>
             </div>
         </div>
@@ -106,6 +104,7 @@
     <div id="toastContainer"></div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.10.0/ethers.umd.min.js"></script>
     <script type="module" src="scripts/app.js"></script>
+    <script type="module" src="scripts/lottery.js"></script>
 </body>
 
 </html>
