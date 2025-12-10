@@ -11,6 +11,7 @@ export async function loadProfilePage() {
     document.getElementById("connectWalletBtn").innerText =
         address.slice(0, 6) + "..." + address.slice(-4);
 
-    const balance = await getBalance(address);
-    document.getElementById("user-balance").innerText = balance + " ETH";
+    const balanceWei = await provider.getBalance(address);
+    const balanceEth = Number(ethers.formatEther(balanceWei)).toFixed(4);
+    document.getElementById("user-balance").innerText = balanceEth + " ETH";
 }

@@ -79,8 +79,8 @@ contract Lottery {
         // winnerToTokenId[winner] = winnerNFTId;
         
         // Tranfer balance to the winner
-        // uint prize = address(this).balance;
-        // internalSafeTransfer(payable(winner), prize);
+        uint prize = address(this).balance;
+        internalSafeTransfer(payable(winner), prize);
 
         // Deactive the game
         gameActive = false;
@@ -88,12 +88,12 @@ contract Lottery {
         // emit WinnerPicked(winner, prize, winnerNFTId);
     }
 
-    // function internalSafeTransfer(address payable _to, uint _amount) internal {
-    //     require(address(this).balance >= _amount, "Insufficient balance");
+    function internalSafeTransfer(address payable _to, uint _amount) internal {
+        require(address(this).balance >= _amount, "Insufficient balance");
 
-    //     (bool success, ) = _to.call{value: _amount}("");
-    //     require(success, "Transfer failed");
-    // }
+        (bool success, ) = _to.call{value: _amount}("");
+        require(success, "Transfer failed");
+    }
 
     // Manager reset game 
     function resetGames() external onlyManager {
@@ -145,5 +145,13 @@ contract Lottery {
 
     function winnerTokenIds(address _winner) public view returns (uint){
         return winnerToTokenId[_winner];
+    }
+
+    function getTotalPool() external view returns (uint) {
+        return address(this).balance;
+    }
+
+    function getCurrentRound() external view returns (uint) {
+        return round;
     }
 }

@@ -1,7 +1,7 @@
 const { BrowserProvider, Contract, parseEther } = ethers;
 import { loadProfilePage } from "./profile.js"
 // import { initContracts } from "./contracts.js";
-
+import { updateBalance } from "./lottery.js";
 import { showToast } from "./toast.js";
 
 export let provider;
@@ -11,7 +11,7 @@ export let currentAddress;
 
 export async function connectWallet() {
   if (!window.ethereum) {
-    alert("Install MetaMask!");
+    showToast("Install MetaMask!", "info");
     return;
   }
 
@@ -23,8 +23,8 @@ export async function connectWallet() {
 
     console.log("Successfully connected to Metamask");
     updateWalletUI(userAddress);
-    const message = "Connected to " + userAddress.slice(0, 6) + "..." + userAddress.slice(-4);
-    showToast(message, "success");
+    // const message = "Connected to " + userAddress.slice(0, 6) + "..." + userAddress.slice(-4);
+    // showToast(message, "success");
   } catch (e) {
     showToast(e.message, "error");
   }
@@ -72,7 +72,9 @@ export function initWalletEvents() {
         signer = await provider.getSigner();
         updateWalletUI(currentAddress);
         const message = "Account changed: " + currentAddress.slice(0, 6) + "..." + currentAddress.slice(-4)
-        showToast(message, "info");
+
+        sessionStorage.setItem("toastAfterReload", message);
+        location.reload();
 
         // Nếu đang ở trang Profile thì reload thông tin
         if (location.pathname.endsWith("profile.html")) {

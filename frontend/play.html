@@ -26,21 +26,25 @@
     </header>
 
     <main class="container mt-20">
-        <h2 class="mb-20" id="currentRound">Current Round 42</h2>
+        <h2 class="mb-20" id="currentRound">Round _</h2>
 
         <!-- Stats Section -->
         <div class="lottery-stats">
             <div class="card stat-box">
                 <h3>Total Pool</h3>
-                <div class="stat-value" id="totalPool"></div>
+                <div class="stat-value" id="totalPool">_</div>
             </div>
             <div class="card stat-box">
-                <h3>Players</h3>
-                <div class="stat-value" id="playerCount"></div>
+                <h3>Tickets</h3>
+                <div class="stat-value" id="ticketCount">_</div>
             </div>
             <div class="card stat-box">
                 <h3>Entry Fee</h3>
-                <div class="stat-value" id="entryFee">ETH</div>
+                <div class="stat-value" id="entryFee">_</div>
+            </div>
+            <div class="card stat-box">
+                <h3>My Balance</h3>
+                <div class="stat-value" id="myBalance">_</div>
             </div>
         </div>
 
@@ -51,21 +55,7 @@
             <div class="player-list" style="width: 100%; max-width: 600px; margin-bottom: 30px;">
                 <h3 class="mb-20" style="text-align: center;">Player List</h3>
                 <ul id="playerList" style="list-style: none; padding: 0;">
-                    <li
-                        style="display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid var(--border-color);">
-                        <span>0x71C...9A2</span>
-                        <span style="color: var(--text-muted)">1 ticket</span>
-                    </li>
-                    <li
-                        style="display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid var(--border-color);">
-                        <span>0x3B4...1C9</span>
-                        <span style="color: var(--text-muted)">1 ticket</span>
-                    </li>
-                    <li
-                        style="display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid var(--border-color);">
-                        <span>0xA91...8B2</span>
-                        <span style="color: var(--text-muted)">1 ticket</span>
-                    </li>
+                    
                 </ul>
             </div>
 
@@ -81,20 +71,15 @@
         <div class="card" style="margin-bottom: 20px;">
             <h3 class="mb-20">Winner History</h3>
             <ul id="winnerHistory">
-                <li style="padding: 10px; border-bottom: 1px solid var(--border-color)">
-                    Round #41: <span style="color: var(--success-color)">0x88...11</span> - NFT #04
-                </li>
-                <li style="padding: 10px; border-bottom: 1px solid var(--border-color)">
-                    Round #40: <span style="color: var(--success-color)">0x22...AA</span> - NFT #03
-                </li>
+                
             </ul>
         </div>
 
         <!-- Admin Section -->
-        <div class="card admin-panel mt-20">
+        <div class="card admin-panel mt-20" id = "admin-panel">
             <h3 style="color: var(--danger-color); margin-bottom: 15px;">Admin Area</h3>
             <div style="display: flex; gap: 10px;">
-                                <button id="pickWinnerBtn" class="btn btn-admin">Pick Random Winner</button>
+                                <button id="pickWinnerBtn" class="btn btn-admin">Pick Winner</button>
                 <button id="resetBtn" class="btn btn-secondary"
                     style="border-color: var(--danger-color); color: var(--danger-color);">Reset Round</button>
             </div>
@@ -103,7 +88,6 @@
     <!-- Toast Display -->
     <div id="toastContainer"></div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.10.0/ethers.umd.min.js"></script>
-    <script type="module" src="scripts/app.js"></script>
     <script type="module" src="scripts/lottery.js"></script>
 </body>
 

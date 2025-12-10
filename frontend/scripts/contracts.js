@@ -45,7 +45,6 @@ export let marketplaceContract;
 
 export async function initContracts() {
   if (!window.ethereum) {
-    alert("MetaMask not detected!");
     showToast("MetaMask not detected!", "info");
     return;
   }
