@@ -7,77 +7,86 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract NFT is ERC721, ERC721URIStorage, Ownable {
     uint256 private _nextTokenId;
+    
+    // Thêm biến lưu địa chỉ contract Lottery để cấp quyền
+    address public lotteryContract;
 
     // Lưu thông tin về người thắng và round
     mapping(uint256 => uint256) public tokenToRound;
     mapping(uint256 => uint256) public tokenToTimestamp;
 
-    event NFTMinted(address indexed winner, uint256 tokenId, uint256 round);
+    event NFTMinted(address indexed winner, uint256 tokenId, uint256 round, string tokenURI);
 
     constructor() ERC721("LotteryWinner", "LWIN") Ownable(msg.sender) {}
 
-    // Mint NFT cho người thắng (chỉ owner/lottery contract gọi được)
-    function mint(address winner) external onlyOwner returns (uint256) {
+    // --- QUẢN LÝ QUYỀN ---
+    // Hàm này cho phép Owner set địa chỉ của Lottery Contract sau khi deploy
+    function setLotteryContract(address _lottery) external onlyOwner {
+        lotteryContract = _lottery;
+    }
+
+    // Modifier chỉ cho phép Owner hoặc Lottery Contract gọi hàm
+    modifier onlyLotteryOrOwner() {
+        require(msg.sender == lotteryContract || msg.sender == owner(), "Not authorized: Caller is not Lottery or Owner");
+        _;
+    }
+
+    // --- LOGIC MINT ---
+    
+    // Hàm mint chính được Lottery gọi. 
+    // Nhận thêm _tokenURI để gán ảnh ngay lập tức.
+    function mint(address winner, string memory _tokenURI) external onlyLotteryOrOwner returns (uint256) {
         uint256 tokenId = _nextTokenId++;
         _safeMint(winner, tokenId);
         
-        // Lưu metadata
+        // Set luôn metadata (link Pinata) cho token này
+        _setTokenURI(tokenId, _tokenURI);
+        
+        // Lưu timestamp
         tokenToTimestamp[tokenId] = block.timestamp;
         
-        emit NFTMinted(winner, tokenId, 0);
+        emit NFTMinted(winner, tokenId, 0, _tokenURI);
         return tokenId;
     }
 
-    // Mint NFT với round number
-    function mintWithRound(address winner, uint256 round) external onlyOwner returns (uint256) {
+    // Nếu bạn muốn lưu cả số Round vào NFT (Option nâng cao)
+    function mintWithRound(address winner, uint256 round, string memory _tokenURI) external onlyLotteryOrOwner returns (uint256) {
         uint256 tokenId = _nextTokenId++;
         _safeMint(winner, tokenId);
-        
-        // Lưu metadata
+        _setTokenURI(tokenId, _tokenURI);
+
+        // Lưu metadata custom
         tokenToRound[tokenId] = round;
         tokenToTimestamp[tokenId] = block.timestamp;
         
-        emit NFTMinted(winner, tokenId, round);
+        emit NFTMinted(winner, tokenId, round, _tokenURI);
         return tokenId;
     }
 
-    // Set token URI (metadata link)
-    function setTokenURI(uint256 tokenId, string memory uri) external onlyOwner {
-        _setTokenURI(tokenId, uri);
-    }
+    // --- CÁC HÀM HỖ TRỢ KHÁC (Giữ nguyên) ---
 
-    // Lấy tổng số NFT đã mint
     function totalSupply() external view returns (uint256) {
         return _nextTokenId;
     }
 
-    // Lấy thông tin NFT
     function getTokenInfo(uint256 tokenId) external view returns (
         address owner,
         uint256 round,
-        uint256 timestamp
+        uint256 timestamp,
+        string memory uri
     ) {
         owner = ownerOf(tokenId);
         round = tokenToRound[tokenId];
         timestamp = tokenToTimestamp[tokenId];
+        uri = tokenURI(tokenId);
     }
 
     // Required overrides
-    function tokenURI(uint256 tokenId)
-        public
-        view
-        override(ERC721, ERC721URIStorage)
-        returns (string memory)
-    {
+    function tokenURI(uint256 tokenId) public view override(ERC721, ERC721URIStorage) returns (string memory) {
         return super.tokenURI(tokenId);
     }
 
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        override(ERC721, ERC721URIStorage)
-        returns (bool)
-    {
+    function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721URIStorage) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 }

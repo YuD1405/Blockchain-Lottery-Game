@@ -76,10 +76,17 @@
         </div>
 
         <!-- Admin Section -->
-        <div class="card admin-panel mt-20" id = "admin-panel">
+        <div class="card admin-panel mt-20" id="admin-panel">
             <h3 style="color: var(--danger-color); margin-bottom: 15px;">Admin Area</h3>
+            
+            <div style="margin-bottom: 10px;">
+                <label style="display:block; margin-bottom:5px;">NFT Reward URI (Pinata):</label>
+                <input type="text" id="nftUriInput" placeholder="ipfs://Qm..." 
+                       style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+            </div>
+        
             <div style="display: flex; gap: 10px;">
-                                <button id="pickWinnerBtn" class="btn btn-admin">Pick Winner</button>
+                <button id="pickWinnerBtn" class="btn btn-admin">Pick Winner</button>
                 <button id="resetBtn" class="btn btn-secondary"
                     style="border-color: var(--danger-color); color: var(--danger-color);">Reset Round</button>
             </div>

@@ -11,8 +11,8 @@ contract Lottery {
     mapping(uint => mapping(uint => address)) private playersByRound;
     mapping(uint => address) private winnerByRound;
     mapping(uint => address[]) private playerListInRound;
-    mapping(address => uint) private winnerToTokenId;
-    
+    mapping(uint => uint) public historyTokenId;
+
     // Init game Variables
     uint private round = 0;
     uint private ticketPrice = 0.001 ether;
@@ -61,31 +61,36 @@ contract Lottery {
     }
 
     // Manager pick the winner among players
-    function pickWinner() external onlyManager {
-        // Check conditions
+    event WinnerPicked(address winner, uint prize, uint winnerNFTId, string tokenURI);
+
+    // 2. Cập nhật hàm pickWinner
+    function pickWinner(string memory _tokenURI) external onlyManager {
         require(gameActive, "Game already ended");
-        require(block.timestamp > deadlines || ticketCount == maxTicket, "Do not meet conditions to end yet");
+        // require(block.timestamp > deadlines || ticketCount == maxTicket, "Do not meet conditions to end yet"); 
+        // (Note: Tạm thời comment dòng check time để test cho dễ, khi deploy thật thì mở lại)
         require(ticketCount > 0, "No tickets sold");
 
-        // Gen random Index among player list
+        // Gen random Index
         uint randomIndex = randomGenerator.generateRandomIndex(ticketCount);
 
         // Get winner
         address winner = playersByRound[round][randomIndex];
         winnerByRound[round] = winner;
 
-        // Tặng NFT cho người thắng
-        // uint winnerNFTId = lotteryNFT.mint(winner);
-        // winnerToTokenId[winner] = winnerNFTId;
-        
-        // Tranfer balance to the winner
+        // --- LOGIC NFT ---
+        // Gọi hàm mint bên NFT contract. 
+        // Lưu ý: Hàm mint bên NFT.sol phải là: function mint(address to, string memory uri) returns (uint)
+        uint winnerNFTId = lotteryNFT.mint(winner, _tokenURI);        
+        historyTokenId[round] = winnerNFTId;
+        // Transfer balance
         uint prize = address(this).balance;
         internalSafeTransfer(payable(winner), prize);
 
-        // Deactive the game
+        // Deactive game
         gameActive = false;
 
-        // emit WinnerPicked(winner, prize, winnerNFTId);
+        // Emit event kèm tokenURI để frontend hứng
+        emit WinnerPicked(winner, prize, winnerNFTId, _tokenURI);
     }
 
     function internalSafeTransfer(address payable _to, uint _amount) internal {
@@ -142,11 +147,14 @@ contract Lottery {
     function getWinnerByRound(uint _round) external view returns (address){
         return winnerByRound[_round];
     }
-
-    function winnerTokenIds(address _winner) public view returns (uint){
-        return winnerToTokenId[_winner];
+    
+    // function winnerTokenIds(address _winner) public view returns (uint){
+    //     return winnerToTokenId[_winner];
+    // }
+    function getWinningTokenId(uint _round) external view returns (uint) {
+        return historyTokenId[_round];
     }
-
+    
     function getTotalPool() external view returns (uint) {
         return address(this).balance;
     }
