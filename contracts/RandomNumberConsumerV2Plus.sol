@@ -9,6 +9,10 @@ import {VRFV2PlusClient} from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/V
  * @title The RandomNumberConsumerV2_5 contract
  * @notice A contract that gets random values from Chainlink VRF V2_5
  */
+interface ILotteryRandomConsumerCallback {
+    function onRandomWords(uint256 requestId, uint256[] calldata randomWords) external;
+}
+
 contract RandomNumberConsumerV2Plus is VRFConsumerBaseV2Plus {
     // Your subscription ID.
     uint256 immutable s_subscriptionId;
@@ -36,7 +40,11 @@ contract RandomNumberConsumerV2Plus is VRFConsumerBaseV2Plus {
     uint256[] public s_randomWords;
     uint256 public s_requestId;
 
+    // Lottery contract authorized to request and receive randomness
+    address public lottery;
+
     event ReturnedRandomness(uint256[] randomWords);
+    event RandomnessRequested(uint256 requestId);
 
     /**
      * @notice Constructor inherits VRFConsumerBaseV2Plus
@@ -48,17 +56,32 @@ contract RandomNumberConsumerV2Plus is VRFConsumerBaseV2Plus {
     constructor(
         uint256 subscriptionId,
         address vrfCoordinator,
-        bytes32 keyHash
+        bytes32 keyHash,
+        address lotteryAddress
     ) VRFConsumerBaseV2Plus(vrfCoordinator) {
         s_keyHash = keyHash;
         s_subscriptionId = subscriptionId;
+        lottery = lotteryAddress;
+    }
+
+    modifier onlyLottery() {
+        require(msg.sender == lottery, "Not lottery");
+        _;
+    }
+
+    function setLottery(address lotteryAddress) external onlyOwner {
+        lottery = lotteryAddress;
     }
 
     /**
      * @notice Requests randomness
      * Assumes the subscription is funded sufficiently; "Words" refers to unit of data in Computer Science
      */
-    function requestRandomWords() external onlyOwner {
+    function requestRandomWords() external onlyOwner returns (uint256) {
+        return _requestRandomWords();
+    }
+
+    function _requestRandomWords() internal returns (uint256) {
         // Will revert if subscription is not set and funded.
         s_requestId = s_vrfCoordinator.requestRandomWords(
             VRFV2PlusClient.RandomWordsRequest({
@@ -73,6 +96,14 @@ contract RandomNumberConsumerV2Plus is VRFConsumerBaseV2Plus {
                 )
             })
         );
+
+        emit RandomnessRequested(s_requestId);
+        return s_requestId;
+    }
+
+    // Lottery can trigger randomness without owning this contract
+    function requestRandomWordsFromLottery() external onlyLottery returns (uint256) {
+        return _requestRandomWords();
     }
 
     /**
@@ -87,5 +118,9 @@ contract RandomNumberConsumerV2Plus is VRFConsumerBaseV2Plus {
     {
         s_randomWords = randomWords;
         emit ReturnedRandomness(randomWords);
+
+        if (lottery != address(0)) {
+            ILotteryRandomConsumerCallback(lottery).onRandomWords(requestId, randomWords);
+        }
     }
 }

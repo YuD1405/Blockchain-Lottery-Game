@@ -21,11 +21,12 @@ describe("RandomNumberConsumerV2Plus", function () {
     await mockVRFCoordinator.waitForDeployment();
 
     // Deploy RandomNumberConsumerV2Plus
-    const RandomNumberConsumerFactory = await ethers.getContractFactory("RandomNumberConsumerV2Plus");
+    const RandomNumberConsumerFactory: any = await ethers.getContractFactory("RandomNumberConsumerV2Plus");
     randomNumberConsumer = await RandomNumberConsumerFactory.deploy(
       SUBSCRIPTION_ID,
       await mockVRFCoordinator.getAddress(),
-      KEY_HASH
+      KEY_HASH,
+      ethers.ZeroAddress // lottery address not needed in these tests
     );
     await randomNumberConsumer.waitForDeployment();
   });

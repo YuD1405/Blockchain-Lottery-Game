@@ -30,7 +30,7 @@ import { networkConfig, developmentChains } from "../helper-hardhat-config"
               )
               const randomNumberConsumerV2Plus = await randomNumberConsumerV2PlusFactory
                   .connect(deployer)
-                  .deploy(subscriptionId, vrfCoordinatorAddress, keyHash)
+                  .deploy(subscriptionId, vrfCoordinatorAddress, keyHash, ethers.ZeroAddress)
               await randomNumberConsumerV2Plus.waitForDeployment()
 
               return { randomNumberConsumerV2Plus, mockVRFCoordinator, subscriptionId }

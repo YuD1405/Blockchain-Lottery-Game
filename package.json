@@ -7,7 +7,9 @@
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "vrf:request": "hardhat run scripts/request-vrf.ts --network sepolia",
+    "lottery:pick": "hardhat run scripts/pick-winner.ts --network sepolia"
   },
   "keywords": [],
   "author": "",
@@ -26,6 +28,7 @@
     "@types/mocha": "^10.0.10",
     "@types/node": "^24.10.0",
     "chai": "^4.2.0",
+    "dotenv": "^17.2.3",
     "ethers": "^6.14.0",
     "hardhat": "^2.27.0",
     "hardhat-gas-reporter": "^2.3.0",
