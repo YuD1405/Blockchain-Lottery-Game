@@ -1,5 +1,4 @@
 const { BrowserProvider, Contract, parseEther } = ethers;
-import { loadProfilePage } from "./profile.js"
 // import { initContracts } from "./contracts.js";
 import { updateBalance } from "./lottery.js";
 import { showToast } from "./toast.js";
@@ -76,11 +75,6 @@ export function initWalletEvents() {
         sessionStorage.setItem("toastAfterReload", message);
         location.reload();
 
-        // Nếu đang ở trang Profile thì reload thông tin
-        if (location.pathname.endsWith("profile.html")) {
-            const { loadProfilePage } = await import("./profile.js");
-            loadProfilePage();
-        }
     });
 
     window.ethereum.on("chainChanged", () => {

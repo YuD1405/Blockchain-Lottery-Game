@@ -60,11 +60,8 @@ contract Lottery {
         emit PlayerJoined(msg.sender);
     }
 
-    // Manager pick the winner among players
-    event WinnerPicked(address winner, uint prize, uint winnerNFTId, string tokenURI);
-
     // 2. Cập nhật hàm pickWinner
-    function pickWinner(string memory _tokenURI) external onlyManager {
+    function pickWinner() external onlyManager {
         require(gameActive, "Game already ended");
         // require(block.timestamp > deadlines || ticketCount == maxTicket, "Do not meet conditions to end yet"); 
         // (Note: Tạm thời comment dòng check time để test cho dễ, khi deploy thật thì mở lại)
@@ -79,18 +76,15 @@ contract Lottery {
 
         // --- LOGIC NFT ---
         // Gọi hàm mint bên NFT contract. 
-        // Lưu ý: Hàm mint bên NFT.sol phải là: function mint(address to, string memory uri) returns (uint)
-        uint winnerNFTId = lotteryNFT.mint(winner, _tokenURI);        
+        uint winnerNFTId = lotteryNFT.mint(winner);        
         historyTokenId[round] = winnerNFTId;
+
         // Transfer balance
         uint prize = address(this).balance;
         internalSafeTransfer(payable(winner), prize);
 
         // Deactive game
         gameActive = false;
-
-        // Emit event kèm tokenURI để frontend hứng
-        emit WinnerPicked(winner, prize, winnerNFTId, _tokenURI);
     }
 
     function internalSafeTransfer(address payable _to, uint _amount) internal {

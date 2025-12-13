@@ -13,7 +13,7 @@ async function main() {
 
   // 2. Deploy NFT
   const NFT_contract = await ethers.getContractFactory("NFT");
-  const nft_deploy = await NFT_contract.deploy();
+  const nft_deploy = await NFT_contract.deploy("ipfs://bafybeieh3fcl366p55b2fjmii7xdzlv3rly5yn3ofyo57vfsobm57znetm/");
   await nft_deploy.waitForDeployment();
   const nftAddress = await nft_deploy.getAddress();
   console.log(`Contract NFT deployed at: ${nftAddress}`);
@@ -31,18 +31,6 @@ async function main() {
   await marketplace_deploy.waitForDeployment();
   console.log(`Contract Marketplace deployed at: ${await marketplace_deploy.getAddress()}`);
 
-  // ====================================================
-  // 5. BƯỚC QUAN TRỌNG: CẤP QUYỀN CHO LOTTERY CONTRACT
-  // ====================================================
-  console.log("------------------------------------------------");
-  console.log("Executing: Set Lottery address in NFT contract...");
-  
-  // Gọi hàm setLotteryContract của NFT
-  const tx = await nft_deploy.setLotteryContract(lotteryAddress);
-  await tx.wait(); // Chờ transaction được xác nhận
-  
-  console.log("✅ Permission GRANTED: Lottery contract can now mint NFTs.");
-  console.log("------------------------------------------------");
 }
 
 main()

@@ -1,14 +1,13 @@
 // ==================== Wallet Connection ====================
 import { connectWallet, initWalletEvents } from "./wallet.js";
-import { loadProfilePage } from "./profile.js";
 import { loadABIs, initContracts } from "./contracts.js"
 // import { joinLottery, pickWinner, resetLottery } from "./lottery.js";
 // import { mintNFT, listNFT, buyNFT } from "./marketplace.js";
 
 document.addEventListener("DOMContentLoaded", async () => {  
   initWalletEvents();
-  await loadABIs();      
-  await initContracts();
+//   await loadABIs();      
+//   await initContracts();
 
   // Connect button
   const connectBtn = document.getElementById("connectWalletBtn");
@@ -23,11 +22,6 @@ document.addEventListener("DOMContentLoaded", async () => {
           const { updateWalletUI } = await import("./wallet.js");
           updateWalletUI(accounts[0]);
       }
-  }
-
-  // Auto-load Profile page
-  if (location.pathname.endsWith("profile.html")) {
-      loadProfilePage();
   }
   
 });

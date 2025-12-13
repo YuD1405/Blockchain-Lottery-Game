@@ -1,144 +1,7 @@
 import { lotteryContract, nftContract, loadABIs, initContracts } from "./contracts.js";
 import { showToast } from "./toast.js";
 import { provider, getAddress, initWalletEvents, connectWallet } from "./wallet.js";
-
-// Hàm convert link IPFS (Giống bên lottery.js)
-function resolveIPFS(url) {
-  if (!url) return "";
-  if (url.startsWith("ipfs://")) {
-    return url.replace("ipfs://", "https://ipfs.io/ipfs/");
-  }
-  return url;
-}
-
-// Hàm chính: Load thông tin trang Profile
-export async function loadProfilePage() {
-    // 1. Init Contract
-    if (!window.ethereum) return;
-    await initContracts(); 
-
-    // 2. Lấy thông tin User
-    if (!provider) {
-         await connectWallet();
-    }
-    
-    try {
-        const signer = await provider.getSigner();
-        const address = await signer.getAddress();
-        
-        // Update UI thông tin User
-        const addrElem = document.getElementById("user-address");
-        const balElem = document.getElementById("user-balance");
-        const connectBtn = document.getElementById("connectWalletBtn");
-
-        if(addrElem) addrElem.innerText = address;
-        if(connectBtn) connectBtn.innerText = address.slice(0, 6) + "..." + address.slice(-4);
-
-        const balanceWei = await provider.getBalance(address);
-        const balanceEth = Number(ethers.formatEther(balanceWei)).toFixed(4);
-        if(balElem) balElem.innerText = balanceEth + " ETH";
-
-        // 3. LOAD NFT CỦA TÔI (Logic mới)
-        await loadMyNFTs(address);
-
-    } catch (err) {
-        console.error("Lỗi load profile:", err);
-    }
-}
-
-// Hàm phụ: Load danh sách NFT bằng cách duyệt qua các Round
-async function loadMyNFTs(userAddress) {
-    const container = document.querySelector(".grid-3");
-    if (!container) return; // Nếu không tìm thấy chỗ hiển thị thì thoát
-    
-    container.innerHTML = "<p>Loading your NFTs...</p>";
-
-    try {
-        // A. Lấy số round hiện tại
-        // (Chúng ta phải duyệt tất cả các round đã qua để xem user có thắng round nào không)
-        const currentRound = Number(await lotteryContract.getCurrentRound());
-        let hasNFT = false;
-        let htmlContent = ""; // Biến chứa HTML để render 1 lần
-
-        // B. Duyệt ngược từ round hiện tại về 0
-        for (let i = currentRound; i >= 0; i--) {
-            
-            // 1. Kiểm tra ai thắng round này
-            let winner = ethers.ZeroAddress;
-            try {
-                 winner = await lotteryContract.getWinnerByRound(i);
-            } catch(e) { continue; }
-            
-            // Nếu người thắng LÀ user đang đăng nhập
-            if (winner.toLowerCase() === userAddress.toLowerCase()) {
-                hasNFT = true;
-                
-                // 2. Lấy Token ID của Round này (Dùng hàm mới getWinningTokenId)
-                let tokenId;
-                try {
-                    tokenId = await lotteryContract.getWinningTokenId(i);
-                } catch (e) {
-                    console.log(`Round ${i}: Không lấy được Token ID`);
-                    continue;
-                }
-
-                // 3. Lấy Metadata (Ảnh, Tên)
-                let imageSrc = "https://via.placeholder.com/300x200?text=No+Image";
-                let nftName = `Lottery Winner Round #${i}`;
-
-                try {
-                    const tokenUri = await nftContract.tokenURI(tokenId);
-                    const resolvedUri = resolveIPFS(tokenUri);
-
-                    // Xử lý ảnh/JSON thông minh
-                    if (resolvedUri.match(/\.(jpeg|jpg|gif|png)$/) != null) {
-                        imageSrc = resolvedUri;
-                    } else {
-                        const response = await fetch(resolvedUri);
-                        const contentType = response.headers.get("content-type");
-                        if (contentType && contentType.includes("application/json")) {
-                            const metadata = await response.json();
-                            if (metadata.image) imageSrc = resolveIPFS(metadata.image);
-                            if (metadata.name) nftName = metadata.name;
-                        } else {
-                            imageSrc = resolvedUri;
-                        }
-                    }
-                } catch (err) {
-                    // Nếu lỗi fetch, dùng luôn link gốc làm ảnh
-                    console.warn(`Lỗi load metadata round ${i}`);
-                }
-
-                // 4. Tạo thẻ HTML cho NFT này
-                htmlContent += `
-                    <div class="card nft-card">
-                        <img src="${imageSrc}" alt="NFT" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px;" 
-                             onerror="this.src='https://via.placeholder.com/300x200?text=Error'">
-                        <div class="nft-info">
-                            <h4>${nftName}</h4>
-                            <p style="font-size: 0.8rem; color: #aaa;">Token ID: #${tokenId}</p>
-                            <span class="price" style="color: var(--success-color)">Owned (Round ${i})</span>
-                        </div>
-                        <div style="display: flex; gap: 10px; margin-top: 10px;">
-                            <button class="btn btn-secondary" style="width: 100%;">Sell (Coming Soon)</button>
-                        </div>
-                    </div>
-                `;
-            }
-        }
-
-        // C. Render kết quả ra màn hình
-        if (!hasNFT) {
-            container.innerHTML = "<p>You don't have any NFT rewards yet.</p>";
-        } else {
-            container.innerHTML = htmlContent;
-        }
-
-    } catch (error) {
-        console.error("Load NFT Error:", error);
-        container.innerHTML = `<p style="color:red">Error loading NFTs: ${error.message}</p>`;
-    }
-}
+import { autoFixIPFS, resolveIPFS } from "./utils.js";
 
 const lottery_ui = {
   connectBtn: document.getElementById("connectWalletBtn"),
@@ -375,6 +238,84 @@ async function updateUserJoinStatus() {
   }
 }
 
+async function updateWinnerHistory() {
+  const ul = document.getElementById("winnerHistory");
+  if (!ul) return;
+
+  try {
+    ul.innerHTML = "";
+
+    const currentRound = Number(await lotteryContract.getCurrentRound());
+    const fallbackImg = "https://via.placeholder.com/50?text=Wait";
+    let hasAnyWinner = false;
+
+    // 🔥 Loop từ currentRound xuống
+    for (let i = currentRound; i >= 0; i--) {
+      const winner = await lotteryContract.getWinnerByRound(i);
+
+      // 🚫 Round chưa có winner → skip
+      if (winner === ethers.ZeroAddress) continue;
+
+      hasAnyWinner = true;
+
+      let imageSrc = fallbackImg;
+      let nftName = "";
+
+      try {
+        const tokenIdBig = await lotteryContract.getWinningTokenId(i);
+        const tokenId = Number(tokenIdBig);
+
+        let tokenUri = await nftContract.tokenURI(tokenId);
+        tokenUri = autoFixIPFS(tokenUri);
+        console.log(tokenUri);
+        const resolvedUri = resolveIPFS(tokenUri);
+        const response = await fetch(resolvedUri);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        const metadata = await response.json();
+        nftName = metadata.name || "Unknown";
+        imageSrc = metadata.image
+          ? resolveIPFS(metadata.image)
+          : fallbackImg;
+
+      } catch (e) {
+        console.warn(`Round ${i}: NFT metadata error`, e);
+      }
+
+      const shortAddr =
+        winner.substring(0, 6) + "..." + winner.substring(winner.length - 4);
+
+      const li = document.createElement("li");
+      li.style =
+        "padding: 10px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 10px;";
+
+      li.innerHTML = `
+        <img src="${imageSrc}"
+             style="width:50px;height:50px;border-radius:8px;border:1px solid gold"
+             onerror="this.src='https://via.placeholder.com/50?text=Err'">
+        <div>
+          <strong>Round ${i}</strong><br>
+          <span>Winner:
+            <span style="color: var(--success-color)">${shortAddr}</span>
+          </span><br>
+          <span style="font-size:13px;color:var(--text-secondary)">
+            NFT: <strong>${nftName}</strong>
+          </span>
+        </div>
+      `;
+
+      ul.appendChild(li);
+    }
+
+    if (!hasAnyWinner) {
+      ul.innerHTML =
+        `<li style="padding:10px;text-align:center">No winners yet</li>`;
+    }
+
+  } catch (err) {
+    console.error("Error loading winner history:", err);
+  }
+}
 
 
 async function joinLottery() {
@@ -395,6 +336,22 @@ async function joinLottery() {
   }
 }
 
+async function pickWinner() {
+  try {
+    const tx = await lotteryContract.pickWinner();
+    await tx.wait();
+
+    showToast("Winner picked & NFT minted!", "success");
+    
+    // Cập nhật lại UI
+    await updateWinnerHistory();
+    await updateTotalPool();
+    // Ẩn nút pick winner nếu cần thiết
+  } catch (e) {
+    showToast(extractErrorMessage(e), "error");
+    console.error(e);
+  }
+}
 
 async function resetLottery() {
   if (!lottery_ui.adminPanel) return false;
@@ -415,15 +372,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         showToast(msg, "info");
         sessionStorage.removeItem("toastAfterReload");
     }
-    if (document.getElementById("user-address")) {
-      console.log("Profile Page Detected: Loading data...");
-      await loadProfilePage();
-    }
 
   // Connect and change wallet event
   initWalletEvents();
   await loadABIs();      
   await initContracts();
+  await checkManager();
   await updateBalance();
   await updateTotalPool();
   await updateFee();
@@ -431,9 +385,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   await updateTotalTicket();
   await updatePlayersByRound();
   await updateUserJoinStatus();
-  
-  // 👇 THÊM DÒNG NÀY ĐỂ SỬA LỖI 👇
   await updateWinnerHistory();
+
   // Connect button
   const connectBtn = document.getElementById("connectWalletBtn");
   if (connectBtn) {
@@ -448,120 +401,8 @@ document.addEventListener("DOMContentLoaded", async () => {
           updateWalletUI(accounts[0]);
       }
   }
-  async function pickWinner() {
-    try {
-      // 1. Lấy URI từ ô input
-      const uriInput = document.getElementById("nftUriInput");
-      const tokenURI = uriInput ? uriInput.value.trim() : "";
   
-      if (!tokenURI) {
-        showToast("Please enter the IPFS URI first!", "info");
-        return;
-      }
-  
-      showToast("Picking winner & Minting NFT...", "info");
-  
-      // 2. Gọi hàm pickWinner với tham số tokenURI
-      // (Lưu ý: ABI phải được cập nhật sau khi compile lại contract)
-      const tx = await lotteryContract.pickWinner(tokenURI);
-      await tx.wait();
-  
-      showToast("Winner picked & NFT minted!", "success");
-      
-      // Cập nhật lại UI
-      await updateWinnerHistory();
-      await updateTotalPool();
-      // Ẩn nút pick winner nếu cần thiết
-    } catch (e) {
-      showToast(extractErrorMessage(e), "error");
-      console.error(e);
-    }
-  }
 
-  // Hàm hỗ trợ convert link IPFS sang link HTTP để hiển thị ảnh
-  // Hàm convert link IPFS sang HTTP (Dùng gateway ipfs.io ổn định hơn cho việc hiển thị public)
-  
-  // --- LOGIC HIỂN THỊ LỊCH SỬ THẮNG (Đã sửa lỗi hiển thị ảnh trực tiếp) ---
-// --- LOGIC HIỂN THỊ LỊCH SỬ THẮNG (Fix lỗi Folder + Fix lỗi Placeholder) ---
-// --- LOGIC HIỂN THỊ LỊCH SỬ THẮNG (Optimized for CORS & Image Files) ---
-  async function updateWinnerHistory() {
-    const ul = document.getElementById("winnerHistory");
-    if (!ul) return; // Guard Clause
-    
-    try {
-      ul.innerHTML = "";
-      const currentRound = Number(await lotteryContract.getCurrentRound());
-      const fallbackImg = "https://via.placeholder.com/50?text=Wait";
-
-      for (let i = currentRound; i >= 0; i--) {
-        const winner = await lotteryContract.getWinnerByRound(i);
-        if (winner === ethers.ZeroAddress) continue; 
-
-        let imageSrc = fallbackImg; 
-
-        try {
-            // 🔥 FIX QUAN TRỌNG Ở ĐÂY:
-            // Thay vì lấy token của Winner (winnerTokenIds), ta lấy token của Round (getWinningTokenId)
-            // Hàm này phải khớp với tên trong Smart Contract mới
-            const tokenId = await lotteryContract.getWinningTokenId(i); 
-
-            if (nftContract) {
-              const tokenUri = await nftContract.tokenURI(tokenId);
-              const resolvedUri = resolveIPFS(tokenUri);
-
-              if (resolvedUri.match(/\.(jpeg|jpg|gif|png)$/) != null) {
-                  imageSrc = resolvedUri;
-              } else {
-                  try {
-                      const response = await fetch(resolvedUri);
-                      const contentType = response.headers.get("content-type");
-                      if (contentType && contentType.includes("application/json")) {
-                          const metadata = await response.json();
-                          if (metadata.image) imageSrc = resolveIPFS(metadata.image);
-                      } else {
-                          imageSrc = resolvedUri;
-                      }
-                  } catch (fetchErr) {
-                      imageSrc = resolvedUri; 
-                  }
-              }
-            }
-        } catch (err) { console.log(`Round ${i}: Error loading data`, err); }
-
-        const shortAddr = winner.substring(0, 6) + "..." + winner.substring(winner.length - 4);
-        const li = document.createElement("li");
-        li.style = "padding: 10px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 10px;";
-        
-        li.innerHTML = `
-          <img src="${imageSrc}" 
-              alt="Reward" 
-              style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; border: 1px solid gold;"
-              onerror="this.src='https://via.placeholder.com/50?text=Err'">
-          <div>
-              <strong>Round ${i}</strong><br>
-              <span>Winner: <span style="color: var(--success-color)">${shortAddr}</span></span>
-          </div>
-        `;
-        ul.appendChild(li);
-      }
-      
-      if (ul.innerHTML === "") {
-          ul.innerHTML = `<li style="padding: 10px; text-align:center;">No winners yet</li>`;
-      }
-    } catch (err) {
-      console.error("Error loading history:", err);
-    }
-  } 
-  // Main lottery page
-  await checkManager();
-  await updateBalance();
-  await updateTotalPool();
-  await updateCurrentRound();
-  await updateTotalTicket();
-  await updatePlayersByRound();
-  await updateUserJoinStatus();
-  await updateWinnerHistory();
-  
   if (lottery_ui.joinBtn) {
     lottery_ui.joinBtn.addEventListener("click", joinLottery);
   }

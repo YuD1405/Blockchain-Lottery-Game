@@ -2,91 +2,45 @@
 pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";  
+import "@openzeppelin/contracts/utils/Strings.sol";
 
-contract NFT is ERC721, ERC721URIStorage, Ownable {
-    uint256 private _nextTokenId;
-    
-    // Thêm biến lưu địa chỉ contract Lottery để cấp quyền
-    address public lotteryContract;
+contract NFT is ERC721Enumerable  {
+    uint256 public nextTokenId;
+    address public admin;
+    using Strings for uint256;
+    string public baseTokenURI;
 
-    // Lưu thông tin về người thắng và round
-    mapping(uint256 => uint256) public tokenToRound;
-    mapping(uint256 => uint256) public tokenToTimestamp;
-
-    event NFTMinted(address indexed winner, uint256 tokenId, uint256 round, string tokenURI);
-
-    constructor() ERC721("LotteryWinner", "LWIN") Ownable(msg.sender) {}
-
-    // --- QUẢN LÝ QUYỀN ---
-    // Hàm này cho phép Owner set địa chỉ của Lottery Contract sau khi deploy
-    function setLotteryContract(address _lottery) external onlyOwner {
-        lotteryContract = _lottery;
+    constructor(string memory _baseTokenURI) ERC721("MyNFT", "MNFT") {
+        admin = msg.sender;
+        baseTokenURI = _baseTokenURI;
     }
-
-    // Modifier chỉ cho phép Owner hoặc Lottery Contract gọi hàm
-    modifier onlyLotteryOrOwner() {
-        require(msg.sender == lotteryContract || msg.sender == owner(), "Not authorized: Caller is not Lottery or Owner");
-        _;
-    }
-
-    // --- LOGIC MINT ---
     
-    // Hàm mint chính được Lottery gọi. 
-    // Nhận thêm _tokenURI để gán ảnh ngay lập tức.
-    function mint(address winner, string memory _tokenURI) external onlyLotteryOrOwner returns (uint256) {
-        uint256 tokenId = _nextTokenId++;
+   function mint(address winner) external returns (uint256) {
+        uint256 tokenId = nextTokenId;
         _safeMint(winner, tokenId);
-        
-        // Set luôn metadata (link Pinata) cho token này
-        _setTokenURI(tokenId, _tokenURI);
-        
-        // Lưu timestamp
-        tokenToTimestamp[tokenId] = block.timestamp;
-        
-        emit NFTMinted(winner, tokenId, 0, _tokenURI);
+        nextTokenId++;
         return tokenId;
     }
 
-    // Nếu bạn muốn lưu cả số Round vào NFT (Option nâng cao)
-    function mintWithRound(address winner, uint256 round, string memory _tokenURI) external onlyLotteryOrOwner returns (uint256) {
-        uint256 tokenId = _nextTokenId++;
-        _safeMint(winner, tokenId);
-        _setTokenURI(tokenId, _tokenURI);
+    function tokenURI(uint256 _tokenId) public view override returns (string memory) {
+        address owner = _ownerOf(_tokenId);
+        require(owner != address(0), "Token does not exist");
 
-        // Lưu metadata custom
-        tokenToRound[tokenId] = round;
-        tokenToTimestamp[tokenId] = block.timestamp;
-        
-        emit NFTMinted(winner, tokenId, round, _tokenURI);
-        return tokenId;
-    }
+        string memory base = baseTokenURI;
 
-    // --- CÁC HÀM HỖ TRỢ KHÁC (Giữ nguyên) ---
+    // đảm bảo base luôn kết thúc bằng "/"
+        if (bytes(base).length > 0 && bytes(base)[bytes(base).length - 1] != "/") {
+            base = string(abi.encodePacked(base, "/"));
+        }
 
-    function totalSupply() external view returns (uint256) {
-        return _nextTokenId;
-    }
-
-    function getTokenInfo(uint256 tokenId) external view returns (
-        address owner,
-        uint256 round,
-        uint256 timestamp,
-        string memory uri
-    ) {
-        owner = ownerOf(tokenId);
-        round = tokenToRound[tokenId];
-        timestamp = tokenToTimestamp[tokenId];
-        uri = tokenURI(tokenId);
-    }
-
-    // Required overrides
-    function tokenURI(uint256 tokenId) public view override(ERC721, ERC721URIStorage) returns (string memory) {
-        return super.tokenURI(tokenId);
-    }
-
-    function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721URIStorage) returns (bool) {
-        return super.supportsInterface(interfaceId);
+        return string(
+            abi.encodePacked(
+                base,
+                "piece_metadata/NFT_",
+                (_tokenId + 1).toString(),
+                ".json"
+            )
+        );
     }
 }
