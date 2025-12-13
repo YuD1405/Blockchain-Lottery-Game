@@ -1,4 +1,6 @@
 import { ethers } from "hardhat";
+import * as fs from "fs";
+import * as path from "path";
 
 // Sepolia defaults from Chainlink docs (override via env if needed)
 const DEFAULT_SEPOLIA_COORDINATOR = "0x9DdfaCa8183c41ad55329BdeeD9F6A8d53168B1B";
@@ -45,6 +47,43 @@ async function main() {
   const marketplace_deploy = await Marketplace_contract.deploy();
   await marketplace_deploy.waitForDeployment();
   console.log(`Contract Marketplace deployed at: ${await marketplace_deploy.getAddress()}`);
+
+  // Save deployed contract addresses to .env.contracts
+  const consumerAddress = await consumer.getAddress();
+  const nftAddress = await nft_deploy.getAddress();
+  const lotteryAddress = await lottery_deploy.getAddress();
+  const marketplaceAddress = await marketplace_deploy.getAddress();
+
+  const envContracts = `# Deployed Contract Addresses
+# Generated automatically by deploy.ts on ${new Date().toISOString()}
+# Network: ${process.env.HARDHAT_NETWORK || 'localhost'}
+
+RANDOM_NUMBER_CONSUMER_ADDRESS=${consumerAddress}
+NFT_CONTRACT_ADDRESS=${nftAddress}
+LOTTERY_CONTRACT_ADDRESS=${lotteryAddress}
+MARKETPLACE_CONTRACT_ADDRESS=${marketplaceAddress}
+
+# VRF Configuration used during deployment
+DEPLOYED_VRF_COORDINATOR=${VRF_COORDINATOR}
+DEPLOYED_VRF_SUBSCRIPTION_ID=${VRF_SUBSCRIPTION_ID}
+DEPLOYED_VRF_KEY_HASH=${VRF_KEY_HASH}
+`;
+
+  const envContractsPath = path.join(__dirname, "..", ".env.contracts");
+  fs.writeFileSync(envContractsPath, envContracts);
+  console.log(`\n✅ Contract addresses saved to .env.contracts`);
+  
+  // Generate frontend config
+  console.log(`\n🔄 Updating frontend configuration...`);
+  const { execSync } = require('child_process');
+  try {
+    execSync('node scripts/generate-frontend-config.js', { stdio: 'inherit' });
+  } catch (error) {
+    console.log(`⚠️  Warning: Could not update frontend config automatically`);
+  }
+  
+  console.log(`\n📝 To verify contracts, run:`);
+  console.log(`task verify  OR  npx hardhat verify-all --network sepolia`);
 }
 
 main()

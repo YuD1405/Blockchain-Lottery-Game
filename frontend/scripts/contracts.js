@@ -1,12 +1,9 @@
 import { showToast } from "./toast.js"
+import { CONTRACT_ADDRESSES } from "./contract-addresses.js"
 
-// Contract addresses from Sepolia deployment
-export const CONTRACTS = {
-  RANDOM_GENERATOR: "0x9fbAf0948F1Df21AdF255d9A85Fcf75a8037FC99",
-  NFT: "0x4EB35b8afB39D9Ff41eD2812E716FEDdfBb4a35c",
-  LOTTERY: "0xd87E55ebc5Ab3a2776eb8805E398a511674fF57F",
-  MARKETPLACE: "0xaE0faADd7AE717Ec12975f3e84bF29accaca02eA",
-};
+// Contract addresses loaded from .env.contracts
+// To update addresses after deployment: npm run update-addresses or task update-addresses
+export const CONTRACTS = CONTRACT_ADDRESSES;
 
 // Contracts ABI
 export let lotteryAbi;

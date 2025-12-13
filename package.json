@@ -9,7 +9,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "vrf:request": "hardhat run scripts/request-vrf.ts --network sepolia",
-    "lottery:pick": "hardhat run scripts/pick-winner.ts --network sepolia"
+    "lottery:pick": "hardhat run scripts/pick-winner.ts --network sepolia",
+    "update-addresses": "node scripts/generate-frontend-config.js"
   },
   "keywords": [],
   "author": "",

@@ -1,0 +1,168 @@
+version: '3'
+
+dotenv: ['.env', '.env.contracts']
+
+vars:
+  NETWORK: '{{.NETWORK | default "sepolia"}}'
+  VRF_COORDINATOR: '{{.VRF_COORDINATOR | default "0x9DdfaCa8183c41ad55329BdeeD9F6A8d53168B1B"}}'
+  VRF_KEY_HASH: '{{.VRF_KEY_HASH | default "0x787d74caea10b2b357790d5b5247c2f63d1d91572a9846f780606e4d953677ae"}}'
+
+tasks:
+  # Compilation tasks
+  compile:
+    desc: Compile smart contracts
+    cmds:
+      - npx hardhat compile
+
+  clean:
+    desc: Clean artifacts and cache
+    cmds:
+      - npx hardhat clean
+
+  # Testing tasks
+  test:
+    desc: Run all tests
+    cmds:
+      - npx hardhat test
+
+  test:lottery:
+    desc: Run Lottery contract tests
+    cmds:
+      - npx hardhat test test/Lottery.test.ts
+
+  test:nft:
+    desc: Run NFT contract tests
+    cmds:
+      - npx hardhat test test/NFT.test.ts
+
+  test:marketplace:
+    desc: Run NFTMarketplace contract tests
+    cmds:
+      - npx hardhat test test/NFTMarketplace.test.ts
+
+  test:vrf:
+    desc: Run VRF consumer tests
+    cmds:
+      - npx hardhat test test/RandomNumberConsumerV2Plus.test.ts
+
+  # Deployment tasks
+  deploy:
+    desc: Deploy all contracts to specified network (default sepolia)
+    cmds:
+      - npx hardhat run scripts/deploy.ts --network {{.NETWORK}}
+
+  deploy:local:
+    desc: Deploy all contracts to local network
+    cmds:
+      - npx hardhat run scripts/deploy.ts --network localhost
+
+  # Verification tasks
+  verify:random:
+    desc: Verify RandomNumberConsumerV2Plus contract
+    cmds:
+      - |
+        npx hardhat verify --network {{.NETWORK}} \
+          $RANDOM_NUMBER_CONSUMER_ADDRESS \
+          $VRF_SUBSCRIPTION_ID \
+          {{.VRF_COORDINATOR}} \
+          {{.VRF_KEY_HASH}} \
+          ${LOTTERY_CONTRACT_ADDRESS:-0x0000000000000000000000000000000000000000}
+
+  verify:nft:
+    desc: Verify NFT contract
+    cmds:
+      - npx hardhat verify --network {{.NETWORK}} $NFT_CONTRACT_ADDRESS
+
+  verify:lottery:
+    desc: Verify Lottery contract
+    cmds:
+      - |
+        npx hardhat verify --network {{.NETWORK}} \
+          $LOTTERY_CONTRACT_ADDRESS \
+          $RANDOM_NUMBER_CONSUMER_ADDRESS \
+          $NFT_CONTRACT_ADDRESS
+
+  verify:marketplace:
+    desc: Verify NFTMarketplace contract
+    cmds:
+      - npx hardhat verify --network {{.NETWORK}} $MARKETPLACE_CONTRACT_ADDRESS
+  verify:
+    desc: Verify all deployed contracts
+    cmds:
+      - task: verify:random
+      - task: verify:nft
+      - task: verify:lottery
+      - task: verify:marketplace
+  # VRF-related tasks
+  check-vrf:
+    desc: Check VRF subscription status
+    cmds:
+      - npx hardhat run scripts/check-vrf-status.ts --network {{.NETWORK}}
+
+  request-vrf:
+    desc: Request random words from VRF
+    cmds:
+      - npx hardhat run scripts/request-vrf.ts --network {{.NETWORK}}
+
+  pick-winner:
+    desc: Pick lottery winner
+    cmds:
+      - npx hardhat run scripts/pick-winner.ts --network {{.NETWORK}}
+
+  # Utility tasks
+  accounts:
+    desc: Show account addresses and balances
+    cmds:
+      - npx hardhat accounts
+
+  node:
+    desc: Start local Hardhat node
+    cmds:
+      - npx hardhat node
+
+  console:
+    desc: Open Hardhat console
+    cmds:
+      - npx hardhat console --network {{.NETWORK}}
+
+  # Combined workflows
+  deploy-and-verify:
+    desc: Deploy and verify all contracts
+    cmds:
+      - task: deploy
+      - task: verify
+
+  full-deploy:
+    desc: Clean, compile, deploy and verify (full workflow)
+    cmds:
+      - task: clean
+      - task: compile
+      - task: deploy
+      - task: verify
+
+  # Frontend tasks
+  update-addresses:
+    desc: Generate frontend contract addresses from .env.contracts
+    cmds:
+      - node scripts/generate-frontend-config.js
+
+  # Show deployed addresses
+  show-addresses:
+    desc: Show deployed contract addresses from .env.contracts
+    cmds:
+      - |
+        if [ -f .env.contracts ]; then
+          echo "📋 Deployed Contract Addresses:"
+          echo "================================"
+          grep "_ADDRESS=" .env.contracts | while read line; do
+            echo "  $line"
+          done
+        else
+          echo "❌ .env.contracts not found. Deploy contracts first with 'task deploy'"
+        fi
+
+  # Help
+  help:
+    desc: Show available tasks
+    cmds:
+      - task --list
