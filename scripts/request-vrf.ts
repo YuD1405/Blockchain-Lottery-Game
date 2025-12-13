@@ -40,10 +40,23 @@ async function main() {
   console.log(`Submitted request. Tx: ${receipt?.hash}`);
   console.log(`Request ID: ${requestId.toString()}`);
 
-  console.log("Waiting for ReturnedRandomness...");
+  // Try to check if already fulfilled
+  try {
+    const storedWord0 = await consumer.s_randomWords(0);
+    if (storedWord0 > 0n) {
+      console.log("✓ Already fulfilled!");
+      const storedWord1 = await consumer.s_randomWords(1);
+      console.log(`Random Words: ${storedWord0.toString()}, ${storedWord1.toString()}`);
+      return;
+    }
+  } catch (e) {
+    // Array not initialized yet, wait for event
+  }
+
+  console.log("Waiting for VRF fulfillment (can take 1-3 minutes on Sepolia)...");
   const [randomWords, fulfillTxHash] = await waitForReturnedRandomness(consumer);
 
-  console.log("Fulfilled!");
+  console.log("✓ Fulfilled!");
   console.log(`Fulfill Tx: ${fulfillTxHash}`);
   console.log(`Random Words: ${randomWords.map((w) => w.toString()).join(", ")}`);
 }
