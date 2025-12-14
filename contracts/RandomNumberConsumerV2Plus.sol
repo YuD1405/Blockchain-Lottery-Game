@@ -31,11 +31,11 @@ contract RandomNumberConsumerV2Plus is VRFConsumerBaseV2Plus {
     uint32 constant CALLBACK_GAS_LIMIT = 200000;
 
     // The default is 3, but you can set this higher.
-    uint16 constant REQUEST_CONFIRMATIONS = 1;
+    uint16 constant REQUEST_CONFIRMATIONS = 3;
 
-    // For this example, retrieve 2 random values in one request.
+    // Retrieve 1 random value (only need one for picking winner)
     // Cannot exceed VRFCoordinatorV2.MAX_NUM_WORDS.
-    uint32 constant NUM_WORDS = 2;
+    uint32 constant NUM_WORDS = 1;
 
     uint256[] public s_randomWords;
     uint256 public s_requestId;
@@ -91,8 +91,8 @@ contract RandomNumberConsumerV2Plus is VRFConsumerBaseV2Plus {
                 callbackGasLimit: CALLBACK_GAS_LIMIT,
                 numWords: NUM_WORDS,
                 extraArgs: VRFV2PlusClient._argsToBytes(
-                    // Set nativePayment to true to pay for VRF requests with Sepolia ETH instead of LINK
-                    VRFV2PlusClient.ExtraArgsV1({nativePayment: false})
+                    // Use native payment (ETH on Sepolia) instead of LINK
+                    VRFV2PlusClient.ExtraArgsV1({nativePayment: true})
                 )
             })
         );

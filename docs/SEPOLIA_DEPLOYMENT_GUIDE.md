@@ -167,53 +167,6 @@ npm start
 
 Open http://localhost:8080 in your browser.
 
-## Step 11: Test the Application
-
-### Connect Wallet
-1. Click "🔗 Connect Wallet"
-2. Approve MetaMask connection
-3. Verify your address and balance are displayed
-
-### Test Lottery
-1. Click "Join Lottery" and confirm transaction
-2. Wait for confirmation (may take 10-30 seconds on Sepolia)
-3. Check transaction on Sepolia Etherscan
-
-### Test NFT Minting
-1. Click "Mint NFT"
-2. Enter a token URI (e.g., `ipfs://QmTest123...`)
-3. Confirm transaction
-4. View your NFT on Sepolia Etherscan
-
-### Test Marketplace
-1. Mint an NFT
-2. List it for sale with a price
-3. Switch to another account in MetaMask
-4. Buy the NFT
-
-## Troubleshooting
-
-### "insufficient funds" error
-- Ensure you have enough SepoliaETH from faucets
-- Check balance in MetaMask
-
-### "wrong network" error
-- Switch MetaMask to Sepolia network
-- Verify Chain ID is 11155111
-
-### Transactions pending too long
-- Sepolia can be slow during high usage
-- Wait 1-2 minutes or try increasing gas price
-
-### Contract verification fails
-- Double-check constructor arguments match deployment
-- Ensure Etherscan API key is correct
-- Wait a few minutes after deployment before verifying
-
-### Frontend can't connect to contracts
-- Verify contract addresses in `contracts.js` are correct
-- Check MetaMask is on Sepolia network
-- Clear browser cache and reload
 
 ## Useful Links
 

@@ -94,20 +94,15 @@ tasks:
       - task: verify:lottery
       - task: verify:marketplace
   # VRF-related tasks
-  check-vrf:
-    desc: Check VRF subscription status
+  add-consumer:
+    desc: Add consumer contract to VRF subscription (run once after deployment)
     cmds:
-      - npx hardhat run scripts/check-vrf-status.ts --network {{.NETWORK}}
+      - npx hardhat run scripts/add-consumer.ts --network {{.NETWORK}}
 
   request-vrf:
-    desc: Request random words from VRF
+    desc: Request random words from VRF (auto-resets lottery, joins, picks winner, shows random numbers)
     cmds:
       - npx hardhat run scripts/request-vrf.ts --network {{.NETWORK}}
-
-  pick-winner:
-    desc: Pick lottery winner
-    cmds:
-      - npx hardhat run scripts/pick-winner.ts --network {{.NETWORK}}
 
   # Utility tasks
   accounts:

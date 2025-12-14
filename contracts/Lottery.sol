@@ -20,7 +20,7 @@ contract Lottery {
     uint private round = 0;
     uint private ticketPrice = 0.001 ether;
     uint private ticketCount = 0;
-    uint private maxTicket = 10;
+    uint private maxTicket = 1;
     uint private deadlines = block.timestamp + 1 days;
     bool private gameActive;
 
