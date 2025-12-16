@@ -15,20 +15,43 @@ const TIMEOUT_MS = Number(process.env.VRF_TIMEOUT_MS || 120_000); // 2 minutes d
 dotenv.config();
 dotenv.config({ path: path.join(__dirname, "..", ".env.contracts") });
 
-async function waitForReturnedRandomness(consumer: any): Promise<readonly [bigint[], string]> {
-  return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => {
-      consumer.removeAllListeners("ReturnedRandomness");
-      reject(new Error("Timed out waiting for ReturnedRandomness"));
-    }, TIMEOUT_MS);
+async function waitForReturnedRandomness(
+  consumer: any,
+  lottery: any,
+  currentRound: bigint
+): Promise<{ randomWord: bigint; winner: string }> {
+  const startTime = Date.now();
+  const pollInterval = 5000; // Poll every 5 seconds
 
-    consumer.once(
-      consumer.filters.ReturnedRandomness(),
-      (randomWords: bigint[], event: any) => {
-        clearTimeout(timer);
-        resolve([randomWords, event.transactionHash]);
+  return new Promise((resolve, reject) => {
+    const checkFulfillment = async () => {
+      try {
+        // Check if winner has been picked for this round
+        const winner = await lottery.getWinnerByRound(currentRound);
+
+        if (winner !== ethers.ZeroAddress) {
+          // Winner picked! VRF fulfilled
+          const randomWord = await consumer.s_randomWords(0);
+          clearInterval(intervalId);
+          resolve({ randomWord, winner });
+          return;
+        }
+
+        // Check timeout
+        if (Date.now() - startTime > TIMEOUT_MS) {
+          clearInterval(intervalId);
+          reject(new Error("Timed out waiting for VRF fulfillment"));
+        }
+      } catch (error) {
+        console.error(`Error checking fulfillment: ${error}`);
       }
-    );
+    };
+
+    // Start polling
+    const intervalId = setInterval(checkFulfillment, pollInterval);
+
+    // Check immediately on start
+    checkFulfillment();
   });
 }
 
@@ -122,50 +145,44 @@ async function main() {
   const requestId: bigint = await consumer.s_requestId();
   console.log(`Request ID: ${requestId.toString()}`);
 
-  // Try to check if already fulfilled
-  try {
-    const storedWord0 = await consumer.s_randomWords(0);
-    if (storedWord0 > 0n) {
-      console.log("✓ Already fulfilled!");
-      const storedWord1 = await consumer.s_randomWords(1);
-      console.log(`Random Words: ${storedWord0.toString()}, ${storedWord1.toString()}`);
-      return;
+  // Check if the current round has already been fulfilled (winner picked)
+  // This is more reliable than checking s_randomWords since that persists across requests
+  const currentRound = await lottery.getCurrentRound();
+  const currentRoundWinner = await lottery.getWinnerByRound(currentRound);
+
+  if (currentRoundWinner !== ethers.ZeroAddress) {
+    console.log("\n✓ Already fulfilled!");
+    console.log(`Round ${currentRound} Winner: ${currentRoundWinner}`);
+
+    // Show the stored random word if available
+    try {
+      const storedWord0 = await consumer.s_randomWords(0);
+      if (storedWord0 > 0n) {
+        console.log(`Random Word: ${storedWord0.toString()}`);
+        console.log(`  As hex: 0x${storedWord0.toString(16)}`);
+        console.log(`  Mod 100: ${storedWord0 % 100n}`);
+      }
+    } catch (e) {
+      // Ignore if can't read random words
     }
-  } catch (e) {
-    // Array not initialized yet, wait for event
+    return;
   }
 
   console.log("Waiting for VRF fulfillment (can take 1-3 minutes on Sepolia)...");
+  console.log(`Polling every 5 seconds for round ${currentRound}...`);
 
   try {
-    const [randomWords, fulfillTxHash] = await waitForReturnedRandomness(consumer);
+    const result = await waitForReturnedRandomness(consumer, lottery, currentRound);
 
     console.log("\n✓ Fulfilled!");
-    console.log(`Fulfill Tx: ${fulfillTxHash}`);
-    console.log(`\n=== Random Numbers ===`);
-    console.log(`Random Word 0: ${randomWords[0].toString()}`);
-    console.log(`Random Word 1: ${randomWords[1].toString()}`);
+    console.log(`\n=== Random Number ===`);
+    console.log(`Random Word: ${result.randomWord.toString()}`);
 
     console.log(`\n=== Different Formats ===`);
-    console.log(`Hex format:`);
-    console.log(`  Word 0: 0x${randomWords[0].toString(16)}`);
-    console.log(`  Word 1: 0x${randomWords[1].toString(16)}`);
+    console.log(`Hex format: 0x${result.randomWord.toString(16)}`);
+    console.log(`Mod 100: ${result.randomWord % 100n}`);
 
-    console.log(`\nAs numbers 0-99:`);
-    console.log(`  Word 0 mod 100: ${randomWords[0] % 100n}`);
-    console.log(`  Word 1 mod 100: ${randomWords[1] % 100n}`);
-
-    // Check lottery winner
-    const lottery = await ethers.getContractAt("Lottery", DEFAULT_LOTTERY);
-    const currentRound = await lottery.getCurrentRound();
-
-    if (currentRound > 0n) {
-      const latestRound = currentRound - 1n;
-      const winner = await lottery.getWinnerByRound(latestRound);
-      if (winner !== ethers.ZeroAddress) {
-        console.log(`\n🎉 Winner of Round ${latestRound}: ${winner}`);
-      }
-    }
+    console.log(`\n🎉 Winner of Round ${currentRound}: ${result.winner}`);
   } catch (err: any) {
     console.error("\n⏱️  Timeout waiting for VRF callback.");
     console.log("This doesn't mean it failed - the callback might just take longer than expected.");

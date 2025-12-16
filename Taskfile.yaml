@@ -134,7 +134,6 @@ tasks:
       - task: compile
       - task: deploy
       - task: verify
-
   # Frontend tasks
   update-addresses:
     desc: Generate frontend contract addresses from .env.contracts
