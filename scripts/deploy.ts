@@ -27,7 +27,7 @@ async function main() {
 
   // 4. Deploy Marketplace
   const Marketplace_contract = await ethers.getContractFactory("NFTMarketplace");
-  const marketplace_deploy = await Marketplace_contract.deploy();
+  const marketplace_deploy = await Marketplace_contract.deploy(nftAddress);
   await marketplace_deploy.waitForDeployment();
   console.log(`Contract Marketplace deployed at: ${await marketplace_deploy.getAddress()}`);
 

@@ -1,7 +1,7 @@
 import { lotteryContract, nftContract, loadABIs, initContracts } from "./contracts.js";
 import { showToast } from "./toast.js";
 import { provider, getAddress, initWalletEvents, connectWallet } from "./wallet.js";
-import { autoFixIPFS, resolveIPFS } from "./utils.js";
+import { autoFixIPFS, resolveIPFS, extractErrorMessage } from "./utils.js";
 
 const lottery_ui = {
   connectBtn: document.getElementById("connectWalletBtn"),
@@ -18,39 +18,6 @@ const lottery_ui = {
   currentRound: document.getElementById("currentRound"),
   adminPanel: document.getElementById("admin-panel")
 };
-
-function extractErrorMessage(error) {
-  try {
-    // Case 1: Ethers v6 — error.revert?.args
-    if (error?.revert?.args && error.revert.args.length > 0) {
-      return error.revert.args[0]; // "Max ticket reached"
-    }
-
-    // Case 2: Ethers v5 style — error.error.body
-    const body = error?.error?.body;
-    if (body) {
-      const bodyJson = JSON.parse(body);
-      const reason = bodyJson?.error?.data?.reason;
-      if (reason) return reason;
-    }
-
-    // Case 3: MetaMask error
-    if (error?.data?.message) {
-      return error.data.message;
-    }
-    if (error?.error?.message) {
-      return error.error.message;
-    }
-
-    // Case 4: Fallback to generic message
-    if (error?.reason) return error.reason;
-    if (error?.message) return error.message;
-
-    return "❌ Unknown error occurred";
-  } catch (err) {
-    return "❌ Unknown error occurred";
-  }
-}
 
 
 export async function checkManager() {
@@ -248,6 +215,7 @@ async function updateWinnerHistory() {
     const currentRound = Number(await lotteryContract.getCurrentRound());
     const fallbackImg = "https://via.placeholder.com/50?text=Wait";
     let hasAnyWinner = false;
+    const baseTokenURI = await nftContract.baseTokenURI();
 
     // 🔥 Loop từ currentRound xuống
     for (let i = currentRound; i >= 0; i--) {
@@ -266,8 +234,9 @@ async function updateWinnerHistory() {
         const tokenId = Number(tokenIdBig);
 
         let tokenUri = await nftContract.tokenURI(tokenId);
-        tokenUri = autoFixIPFS(tokenUri);
-        console.log(tokenUri);
+
+        tokenUri = autoFixIPFS(tokenUri, baseTokenURI);
+
         const resolvedUri = resolveIPFS(tokenUri);
         const response = await fetch(resolvedUri);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);

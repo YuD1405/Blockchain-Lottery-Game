@@ -24,19 +24,35 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-
-
-
 body {
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  background-image: url(../img/wp11027800.jpg);
-  background-blend-mode: multiply;
-  background-color: rgba(15, 23, 42, 0.7);
+  position: relative;
+  min-height: 100vh;
+  margin: 0;
   color: var(--text-color);
   line-height: 1.6;
+  overflow-x: hidden;
 }
+
+/* Background layer */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+
+  background-image: url(../img/wp11027800.jpg);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+
+  filter: blur(7px);
+  transform: scale(1.05); /* tránh viền trắng do blur */
+  
+  background-color: rgba(15, 23, 42, 0.7);
+  background-blend-mode: multiply;
+
+  z-index: -1;
+}
+
 
 a {
   text-decoration: none;
@@ -268,3 +284,196 @@ nav a:hover {
   justify-content: center;
   font-size: 2rem;
 }
+
+/* Container grid (khuyên dùng) */
+.grid-3 {
+    display: grid;
+    grid-template-columns: repeat(4, 220px); /* tối đa 4 card / row */
+    gap: 50px;
+    justify-content: center; /* center toàn bộ grid */
+}
+
+/* Card */
+.nft-card {
+    width: 230px;
+    height: 420px;
+    background: #48484800;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.nft-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 14px 36px rgba(0,0,0,0.65);
+    background: #48484813;
+}
+
+
+/* Image */
+.nft-image-wrapper {
+    width: 100%;
+    height: 260px;
+
+    padding: 12px;
+    background: #98989825;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nft-image-wrapper img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 10px;
+    margin: 0px;
+}
+
+/* Body */
+.nft-body {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: #1b1b1bb7;
+
+}
+
+.nft-card.rare .nft-body {
+    background: linear-gradient(135deg, #facc15, #a855f7);
+    color: #0b0b0b; /* text tối để tương phản */
+}
+
+.nft-card.rare .nft-name,
+.nft-card.rare .nft-token {
+    color: #0b0b0b;
+}
+
+.nft-card.rare .nft-actions input {
+    background: rgba(255, 255, 255, 0.9);
+    color: #0b0b0b;
+}
+
+.nft-card.rare .btn-sell {
+    background: #0b0b0b;
+    color: #facc15;
+}
+
+.nft-card.rare .btn-sell:hover:not(:disabled) {
+    background: #1a1a1a;
+}
+
+/* Info */
+.nft-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nft-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #fff;
+    margin: 0;
+}
+
+.nft-token {
+    font-size: 12px;
+    color: #aaa;
+}
+
+/* Actions */
+.nft-actions {
+    display: flex;
+    flex-direction: column; 
+    gap: 10px;
+}
+
+.nft-actions input {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 14px;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+}
+
+.nft-price {
+  font-size: large;
+  font-weight: 700;
+  color: #2b7b48; /* xanh money */
+}
+
+.nft-meta.rare {
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: var(--text-muted);
+}
+
+.nft-actions button {
+  width: 100%;
+}
+
+.nft-card.rare .btn-buy {
+    background: #0b0b0b;
+    color: #facc15;
+}
+
+.nft-card.rare .btn-buy:hover:not(:disabled) {
+    background: #1a1a1a;
+}
+
+.btn-sell {
+    width: 100%;
+    padding: 10px 0;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    background: #7853ffea;
+    color: #fff;
+    transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.btn-sell:hover:not(:disabled) {
+    background: #4a6bff;
+    transform: translateY(-1px);
+}
+
+.btn-sell:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-buy {
+  padding: 14px 0; /* tăng padding để nút cao hơn */
+  font-size: 1.1rem; /* chữ lớn hơn */
+  border-radius: 8px; /* bo tròn đẹp hơn */
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #4f46e5;
+}
+
+.nft-actions input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+@media (max-width: 1000px) {
+    .nft-grid {
+        grid-template-columns: repeat(2, 220px);
+    }
+}
+
+@media (max-width: 520px) {
+    .nft-grid {
+        grid-template-columns: repeat(1, 220px);
+    }
+}
+
