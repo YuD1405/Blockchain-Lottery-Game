@@ -75,3 +75,31 @@ export function extractErrorMessage(error) {
     return "❌ Unknown error occurred";
   }
 }
+
+export function trimNFTName(name) {
+  // Case 1: Piece NFT
+  const pieceMatch = name.match(/World Stamp - (.+?) .*?– Piece #(\d+)/);
+  if (pieceMatch) {
+    const country = pieceMatch[1];
+    const piece = pieceMatch[2];
+    return `${country} #${piece}`;
+  }
+
+  // Case 2: Full NFT
+  const fullMatch = name.match(/World Stamp - (.+?)(?:\s*\(.*?\))?$/);
+  if (fullMatch) {
+    return fullMatch[1]; // chỉ trả tên quốc gia
+  }
+
+  // Fallback
+  return name;
+}
+
+
+export function isFullNFT(name) {
+  return !/Piece\s*#\d+/i.test(name);
+}
+
+export function convertToJPG(url) {
+  return url.replace(/\.\w+$/, ".jpg");
+}

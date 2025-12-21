@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NFT Fusion</title>
+
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/toast.css" />
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/toast.css">
+</head>
+
+<body>
+    <!-- HEADER -->
+    <header>
+        <div class="container nav-container">
+            <div class="logo">NFT Lottery</div>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Main Page</a></li>
+                    <li><a href="play.html">Play Lottery</a></li>
+                    <li><a href="market.html">NFT Marketplace</a></li>
+                    <li><a href="fusion.html" style="color: var(--primary-color)">NFT Fusion</a></li>
+                    <li><a href="profile.html">Profile</a></li>
+                </ul>
+            </nav>
+            <button class="btn-connect" id="connectWalletBtn">Connect</button>
+        </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="container mt-20">
+
+        <h2 class="mb-30">NFT Fusion Lab</h2>
+
+        <!-- FUSION BOX (Top) -->
+        <section class="fusion-box">
+            <h3 class="mb-15">Fusion Box</h3>
+
+            <div class="grid-1 gap-20" id="fusionSlots">
+                <div class="fusion-slot">Slot 1</div>
+                <div class="fusion-slot">Slot 2</div>
+                <div class="fusion-slot">Slot 3</div>
+                <div class="fusion-slot">Slot 4</div>
+            </div>
+
+            <button class="btn-fuse disabled mt-20 w-full" id="mergeBtn" disabled>
+                Fuse NFT
+            </button>
+        </section>
+
+        <div class="fusion-layout">
+
+            <section class="mb-40">
+            <p class="mb-20" style="color: var(--text-muted)">
+                Click NFTs to select for fusion (same city & type)
+            </p>
+
+            <div class="grid-3" id="myNftGrid">
+                <!-- NFT cards render here -->
+            </div>
+        </section>
+
+        </div>
+    </main>
+
+    <!-- TOAST -->
+    <div id="toastContainer"></div>
+
+    <!-- SCRIPT -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.10.0/ethers.umd.min.js"></script>
+    <script type="module" src="scripts/fusion.js"></script>
+</body>
+
+</html>

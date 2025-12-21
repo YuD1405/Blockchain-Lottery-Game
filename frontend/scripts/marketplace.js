@@ -1,6 +1,6 @@
 import { marketplaceContract, nftContract, loadABIs, initContracts } from "./contracts.js";
 import { showToast } from "./toast.js";
-import { autoFixIPFS, resolveIPFS } from "./utils.js";
+import { autoFixIPFS, resolveIPFS, trimNFTName } from "./utils.js";
 import { initWalletEvents } from "./wallet.js";
 
 const grid = document.querySelector(".grid-3");
@@ -29,14 +29,16 @@ function renderNFTCard({ listingId, name, image, priceEth, seller }) {
   const shortSeller = seller.slice(0, 6) + "..." + seller.slice(-4);
 
   const card = document.createElement("div");
-  const isRare = 1;
+  const isRare = isFullNFT(nftName);
+  image = resolveIPFS(image)
+  let imageSrc = isRare? convertToJPG(image): image;
   const cardClass = isRare ? "nft-card rare" : "nft-card common";
 
   card.innerHTML = `
     <div class="${cardClass}">
       <div class="nft-image-wrapper">
         <img 
-          src="${resolveIPFS(image)}" 
+          src="${imageSrc}" 
           alt="${name}"
           onerror="this.src='https://via.placeholder.com/400x400?text=NFT+Error'"
         />
@@ -44,7 +46,7 @@ function renderNFTCard({ listingId, name, image, priceEth, seller }) {
 
       <div class="nft-body">
         <div class="nft-info">
-          <h4 class="nft-name">${name}</h4>
+          <h4 class="nft-name">${trimNFTName(name)}</h4>
           <span class="nft-price">${priceEth} ETH</span>
         </div>
 

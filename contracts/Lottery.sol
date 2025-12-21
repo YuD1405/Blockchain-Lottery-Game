@@ -76,7 +76,7 @@ contract Lottery {
 
         // --- LOGIC NFT ---
         // Gọi hàm mint bên NFT contract. 
-        uint winnerNFTId = lotteryNFT.mint(winner);        
+        uint winnerNFTId = lotteryNFT.mintPiece(winner);
         historyTokenId[round] = winnerNFTId;
 
         // Transfer balance

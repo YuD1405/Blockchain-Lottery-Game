@@ -1,6 +1,6 @@
 import { connectWallet, initWalletEvents, getAddress } from "./wallet.js";
 import { marketplaceContract, nftContract, loadABIs, initContracts, CONTRACTS } from "./contracts.js";
-import { resolveIPFS, autoFixIPFS, extractErrorMessage  } from "./utils.js";
+import { resolveIPFS, autoFixIPFS, extractErrorMessage , trimNFTName, isFullNFT,convertToJPG } from "./utils.js";
 import { showToast } from "./toast.js";
 
 async function ensureApproved(tokenId) {
@@ -81,8 +81,9 @@ async function loadMyNFTs(userAddress) {
             
             const listed = await marketplaceContract.isNFTListed(tokenId);
 
-            const isRare = 1;
+            const isRare = isFullNFT(nftName);
             const cardClass = isRare ? "nft-card rare" : "nft-card common";
+            imageSrc = isRare? convertToJPG(imageSrc): imageSrc;
             htmlContent += `
               <div class="${cardClass}">
                 <div class="nft-image-wrapper">
@@ -95,7 +96,7 @@ async function loadMyNFTs(userAddress) {
 
                 <div class="nft-body">
                   <div class="nft-info">
-                    <h4 class="nft-name">${nftName}</h4>
+                    <h4 class="nft-name">${trimNFTName(nftName)}</h4>
                     <span class="nft-token">#${tokenId}</span>
                   </div>
 

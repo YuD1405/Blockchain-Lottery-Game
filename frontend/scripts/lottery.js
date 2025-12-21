@@ -229,11 +229,21 @@ async function updateWinnerHistory() {
       let imageSrc = fallbackImg;
       let nftName = "";
 
+      let isBurned = false;
+
       try {
         const tokenIdBig = await lotteryContract.getWinningTokenId(i);
         const tokenId = Number(tokenIdBig);
 
-        let tokenUri = await nftContract.tokenURI(tokenId);
+        let tokenUri;
+
+        try {
+          tokenUri = await nftContract.tokenURI(tokenId);
+        } catch {
+          // 🔥 token đã burn
+          isBurned = true;
+          throw new Error("NFT burned");
+        }
 
         tokenUri = autoFixIPFS(tokenUri, baseTokenURI);
 
@@ -242,14 +252,16 @@ async function updateWinnerHistory() {
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
         const metadata = await response.json();
-        nftName = metadata.name || "Unknown";
+        nftName = metadata.name || "Unknown NFT";
         imageSrc = metadata.image
           ? resolveIPFS(metadata.image)
           : fallbackImg;
 
       } catch (e) {
-        console.warn(`Round ${i}: NFT metadata error`, e);
+        nftName = "🔥 NFT Burned";
+        imageSrc = "";
       }
+
 
       const shortAddr =
         winner.substring(0, 6) + "..." + winner.substring(winner.length - 4);
@@ -261,7 +273,7 @@ async function updateWinnerHistory() {
       li.innerHTML = `
         <img src="${imageSrc}"
              style="width:50px;height:50px;border-radius:8px;border:1px solid gold"
-             onerror="this.src='https://via.placeholder.com/50?text=Err'">
+             onerror="this.src=''">
         <div>
           <strong>Round ${i}</strong><br>
           <span>Winner:
