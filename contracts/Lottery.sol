@@ -2,8 +2,11 @@
 pragma solidity ^0.8.28;
 
 // Import các hợp đồng con
-import "./RandomGenerator.sol";
 import "./NFT.sol";
+
+interface IRandomNumberConsumerV2Plus {
+    function requestRandomWordsFromLottery() external returns (uint256);
+}
 
 contract Lottery {
     // Init addresses
@@ -17,13 +20,20 @@ contract Lottery {
     uint private round = 0;
     uint private ticketPrice = 0.001 ether;
     uint private ticketCount = 0;
-    uint private maxTicket = 10;
+    uint private maxTicket = 1;
     uint private deadlines = block.timestamp + 1 days;
     bool private gameActive;
 
     // Call sub-Contracts
-    RandomGenerator randomGenerator;
     NFT public lotteryNFT;
+    IRandomNumberConsumerV2Plus public randomConsumer;
+
+    // Track VRF requests per round
+    mapping(uint256 => uint256) private roundTicketCount;
+    mapping(uint256 => uint256) private roundPrize;
+    mapping(uint256 => uint256) private requestIdToRound;
+    uint256 private pendingRequestId;
+    bool private awaitingRandomness;
 
     // Check manager
     modifier onlyManager() {
@@ -35,11 +45,12 @@ contract Lottery {
     event PlayerJoined(address player);
     event WinnerPicked(address winner, uint prize, uint winnerNFTId);
     event GameReseted();
+    event RandomnessRequested(uint256 requestId, uint round, uint ticketCount);
 
     // Constructor
-    constructor(address _randomGenerator, address _lotteryNFT) {
+    constructor(address _randomConsumer, address _lotteryNFT) {
         manager = msg.sender;
-        randomGenerator = RandomGenerator(_randomGenerator);
+        randomConsumer = IRandomNumberConsumerV2Plus(_randomConsumer);
         lotteryNFT = NFT(_lotteryNFT);
         gameActive = true;
     }
@@ -63,28 +74,22 @@ contract Lottery {
     // 2. Cập nhật hàm pickWinner
     function pickWinner() external onlyManager {
         require(gameActive, "Game already ended");
-        // require(block.timestamp > deadlines || ticketCount == maxTicket, "Do not meet conditions to end yet"); 
-        // (Note: Tạm thời comment dòng check time để test cho dễ, khi deploy thật thì mở lại)
+        require(!awaitingRandomness, "Waiting for VRF");
+        require(block.timestamp > deadlines || ticketCount == maxTicket, "Do not meet conditions to end yet");
         require(ticketCount > 0, "No tickets sold");
 
-        // Gen random Index
-        uint randomIndex = randomGenerator.generateRandomIndex(ticketCount);
-
-        // Get winner
-        address winner = playersByRound[round][randomIndex];
-        winnerByRound[round] = winner;
-
-        // --- LOGIC NFT ---
-        // Gọi hàm mint bên NFT contract. 
-        uint winnerNFTId = lotteryNFT.mintPiece(winner);
-        historyTokenId[round] = winnerNFTId;
-
-        // Transfer balance
-        uint prize = address(this).balance;
-        internalSafeTransfer(payable(winner), prize);
-
-        // Deactive game
+        // Stop further joins while waiting for VRF callback
         gameActive = false;
+        awaitingRandomness = true;
+        roundTicketCount[round] = ticketCount;
+        roundPrize[round] = address(this).balance;
+
+        // Request randomness from the external consumer contract and track the request
+        uint256 requestId = randomConsumer.requestRandomWordsFromLottery();
+        pendingRequestId = requestId;
+        requestIdToRound[requestId] = round;
+
+        emit RandomnessRequested(requestId, round, ticketCount);
     }
 
     function internalSafeTransfer(address payable _to, uint _amount) internal {
@@ -98,15 +103,47 @@ contract Lottery {
     function resetGames() external onlyManager {
         // Check conditions
         require(!gameActive, "Game still active");
+        require(!awaitingRandomness, "Awaiting VRF result");
+        require(winnerByRound[round] != address(0), "Winner not picked yet");
 
         // Rest all variables
         ticketCount = 0;
         deadlines = block.timestamp + 1 days;
         gameActive = true;
         round++;
+        pendingRequestId = 0;
 
         // event
         emit GameReseted();
+    }
+
+    // Callback from RandomNumberConsumerV2Plus
+    function onRandomWords(uint256 requestId, uint256[] calldata randomWords) external {
+        require(msg.sender == address(randomConsumer), "Unauthorized callback");
+        require(awaitingRandomness, "No pending VRF request");
+
+        require(requestId == pendingRequestId, "Request ID mismatch");
+
+        uint256 resolvedRound = requestIdToRound[requestId];
+        uint256 playerCount = roundTicketCount[resolvedRound];
+        require(playerCount > 0, "No players in round");
+
+        uint256 randomIndex = randomWords[0] % playerCount;
+        address winner = playersByRound[resolvedRound][randomIndex];
+        winnerByRound[resolvedRound] = winner;
+
+        uint winnerNFTId = lotteryNFT.mintPiece(winner);
+        historyTokenId[round] = winnerNFTId;
+
+        // Transfer balance
+        uint prize = address(this).balance;
+        internalSafeTransfer(payable(winner), prize);
+
+        awaitingRandomness = false;
+        pendingRequestId = 0;
+        delete requestIdToRound[requestId];
+
+        emit WinnerPicked(winner, prize, 0);
     }
 
     // Public getter functions for frontend
@@ -155,5 +192,14 @@ contract Lottery {
 
     function getCurrentRound() external view returns (uint) {
         return round;
+    }
+
+    // Helpers for frontend status
+    function getPendingRequestId() external view returns (uint256) {
+        return pendingRequestId;
+    }
+
+    function isAwaitingRandomness() external view returns (bool) {
+        return awaitingRandomness;
     }
 }

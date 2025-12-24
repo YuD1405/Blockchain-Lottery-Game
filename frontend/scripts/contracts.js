@@ -1,12 +1,9 @@
 import { showToast } from "./toast.js"
+import { CONTRACT_ADDRESSES } from "./contract-addresses.js"
 
-// Contract addresses from deployment
-export const CONTRACTS = {
-  RANDOM_GENERATOR: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-  NFT: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-  LOTTERY: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-  MARKETPLACE: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
-};
+// Contract addresses loaded from .env.contracts
+// To update addresses after deployment: npm run update-addresses or task update-addresses
+export const CONTRACTS = CONTRACT_ADDRESSES;
 
 // Contracts ABI
 export let lotteryAbi;
@@ -25,7 +22,7 @@ export async function loadABIs() {
   try {
     lotteryAbi     = await loadABI("../abi/Lottery.sol/Lottery.json");
     nftAbi         = await loadABI("../abi/NFT.sol/NFT.json");
-    randomAbi      = await loadABI("../abi/RandomGenerator.sol/RandomGenerator.json");
+    randomAbi      = await loadABI("../abi/RandomNumberConsumerV2Plus.sol/RandomNumberConsumerV2Plus.json");
     marketplaceAbi = await loadABI("../abi/Marketplace.sol/NFTMarketplace.json");
 
     console.log("ABI loaded successfully!");
