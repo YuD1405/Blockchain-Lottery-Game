@@ -44,6 +44,7 @@ export function autoFixIPFS(uri, baseTokenURI) {
 }
 
 export function extractErrorMessage(error) {
+  console.log(error);
   try {
     // Case 1: Ethers v6 — error.revert?.args
     if (error?.revert?.args && error.revert.args.length > 0) {

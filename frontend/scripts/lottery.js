@@ -319,18 +319,24 @@ async function joinLottery() {
 
 async function pickWinner() {
   try {
+    showToast("🎲 Requesting randomness...", "info");
+
     const tx = await lotteryContract.pickWinner();
     await tx.wait();
 
-    showToast("Winner picked & NFT minted!", "success");
-    
-    // Cập nhật lại UI
-    await updateWinnerHistory();
-    await updateTotalPool();
-    // Ẩn nút pick winner nếu cần thiết
+    showToast("⏳ Waiting for VRF callback...", "info");
+
+    lotteryContract.once(
+      "WinnerPicked",
+      async (winner, prize, tokenId) => {    
+        const shortWinner = winner.slice(0, 6) + "..." + winner.slice(-4);
+        console.log(winner);
+        showToast(`🎉 Winner: ${shortWinner} | NFT #${tokenId}`);
+      }
+    );
+
   } catch (e) {
     showToast(extractErrorMessage(e), "error");
-    console.error(e);
   }
 }
 

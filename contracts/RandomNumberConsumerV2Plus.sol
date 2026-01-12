@@ -28,7 +28,7 @@ contract RandomNumberConsumerV2Plus is VRFConsumerBaseV2Plus {
     // this limit based on the network that you select, the size of the request,
     // and the processing of the callback request in the fulfillRandomWords()
     // function.
-    uint32 constant CALLBACK_GAS_LIMIT = 200000;
+    uint32 constant CALLBACK_GAS_LIMIT = 600000;
 
     // The default is 3, but you can set this higher.
     uint16 constant REQUEST_CONFIRMATIONS = 3;

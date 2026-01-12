@@ -20,7 +20,7 @@ contract Lottery {
     uint private round = 0;
     uint private ticketPrice = 0.001 ether;
     uint private ticketCount = 0;
-    uint private maxTicket = 1;
+    uint private maxTicket = 10;
     uint private deadlines = block.timestamp + 1 days;
     bool private gameActive;
 
@@ -143,7 +143,7 @@ contract Lottery {
         pendingRequestId = 0;
         delete requestIdToRound[requestId];
 
-        emit WinnerPicked(winner, prize, 0);
+        emit WinnerPicked(winner, prize, winnerNFTId);
     }
 
     // Public getter functions for frontend
